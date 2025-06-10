@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Votación - Balón d'Or Lucky League 2025</title>
+  <style>
+    body {
+      background-color: black;
+      color: gold;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 30px;
+    }
+    .category {
+      margin-bottom: 40px;
+    }
+    label, select {
+      display: block;
+      margin: 10px auto;
+      font-size: 1rem;
+    }
+    button {
+      background-color: gold;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Votación Balón d'Or Lucky League 2025</h1>
+  <div class="category" id="balon">
+    <h2>⚽ Balón de Oro</h2>
+    <label>1° Lugar</label>
+    <select id="balon1">
+      <option disabled selected>Seleccionar</option>
+      <option>Jordan</option>
+      <option>Sebastián</option>
+      <option>Rodrigo Poyet</option>
+      <option>Chris</option>
+      <option>Alex</option>
+      <option>Achelos</option>
+      <option>Franco</option>
+      <option>Dylan Briceño</option>
+      <option>Hiro</option>
+      <option>Seen</option>
+      <option>Iker</option>
+      <option>Joseph</option>
+      <option>Gojo</option>
+      <option>Julio</option>
+      <option>Emanuel</option>
+    </select>
+    <label>2° Lugar</label>
+    <select id="balon2">
+      <option disabled selected>Seleccionar</option>
+      <!-- mismos candidatos -->
+    </select>
+    <label>3° Lugar</label>
+    <select id="balon3">
+      <option disabled selected>Seleccionar</option>
+      <!-- mismos candidatos -->
+    </select>
+  </div>
+
+  <button onclick="guardarVoto()">Enviar Voto</button>
+
+  <script>
+    function guardarVoto() {
+      const nombre = localStorage.getItem("voterName") || "votante";
+      const votos = {
+        balon: {
+          primero: document.getElementById("balon1").value,
+          segundo: document.getElementById("balon2").value,
+          tercero: document.getElementById("balon3").value
+        }
+      };
+      localStorage.setItem("voto_" + nombre, JSON.stringify(votos));
+      alert("¡Gracias por votar, " + nombre + "!");
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Balón d'Or Lucky League 2025</title>
+  <style>
+    body {
+      background: black;
+      color: gold;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding: 30px;
+    }
+  <div id="startScreen" style="position: fixed; top:0; left:0; width:100%; height:100%; background:black; color:gold; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999;">
+  <h2>Balón d'Or Lucky League 2025</h2>
+  <p>Haz clic para comenzar la experiencia</p>
+  <button onclick="startExperience()">🎵 Iniciar</button>
+</div>
+    h1 {
+      font-size: 2.5rem;
+    }
+    button {
+      padding: 12px 20px;
+      margin: 10px;
+      background: gold;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    select {
+      padding: 10px;
+      margin: 10px;
+    }
+    .category {
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Balón d'Or Lucky League 2025</h1>
+  <audio id="bgMusic" src="cancion.mp3" loop></audio>
+  <button onclick="toggleMusic()">🎵 Pausar/Reproducir Música</button>
+
+  <div id="login">
+    <h2>Ingresa como:</h2>
+    <select id="userSelect">
+      <option disabled selected>Selecciona tu nombre</option>
+      <option>Ney.Cp</option>
+      <option>Doc</option>
+      <option>Jordan</option>
+      <option>David</option>
+      <option>Franco</option>
+      <option>Abner</option>
+      <option>Pingüino</option>
+      <option>Alex</option>
+      <option>Alysmeg</option>
+      <option>Sebastián</option>
+      <option>Shane</option>
+      <option>Yo nomás</option>
+      <option>Gojo</option>
+    </select>
+    <button onclick="enterAsVoter()">Entrar</button>
+
+    <h2>¿Eres administrador?</h2>
+    <input type="password" id="adminPass" placeholder="Contraseña">
+    <button onclick="enterAsAdmin()">Entrar como Admin</button>
+  </div>
+
+  <div id="voting" style="display:none;">
+    <h2>Votación</h2>
+    <form id="voteForm"></form>
+    <button onclick="submitVotes()">Enviar Votos</button>
+  </div>
+
+  <div id="adminPanel" style="display:none;">
+    <h2>Panel de Administrador</h2>
+    <button onclick="resetVotes()">🔁 Reiniciar Votaciones</button>
+    <button onclick="viewResults()">📊 Ver Resultados</button>
+    <pre id="results" style="text-align:left;"></pre>
+  </div>
+
+  <script>
+  function startExperience() {
+  document.getElementById("startScreen").style.display = "none";
+  const music = document.getElementById("bgMusic");
+  music.play().catch(() => {
+    console.log("Chrome bloqueó la música. Espera interacción del usuario.");
+  });
+}
+    const music = document.getElementById("bgMusic");
+
+    function toggleMusic() {
+      if (music.paused) {
+        music.play();
+      } else {
+        music.pause();
+      }
+    }
+
+    const categories = {
+      "Balón de Oro": [
+        "Jordan", "Sebastián", "Rodrigo Poyet", "Chris", "Alex", "Achelos", "Franco", "Dylan Briceño",
+        "Hiro", "Seen", "Iker", "Joseph", "Gojo", "Julio", "Emanuel"
+      ],
+      "Mejor Arquero": ["Dylan Briceño", "Chris", "Chuy", "Tibu", "Hiro"],
+      "Mejor Mediocampista/Defensa": ["Pingüino", "Anchelos", "Cat", "Emmamuel"],
+      "Mejor Admin": ["Ney", "Doc", "David", "Abner", "Yo nomás", "Franco", "Jordan"],
+      "Mejor Equipo": ["Predators", "Berserk", "Royal"]
+    };
+
+    let currentUser = "";
+
+    function enterAsVoter() {
+      const name = document.getElementById("userSelect").value;
+      if (!name || name === "Selecciona tu nombre") {
+        alert("Selecciona un nombre válido.");
+        return;
+      }
+      currentUser = name;
+      if (localStorage.getItem("votes_" + name)) {
+        alert("Ya has votado.");
+        return;
+      }
+      document.getElementById("login").style.display = "none";
+      document.getElementById("voting").style.display = "block";
+      showVotingForm();
+    }
+
+    function enterAsAdmin() {
+      const pass = document.getElementById("adminPass").value;
+      if (pass === "Neyler2025") {
+        document.getElementById("login").style.display = "none";
+        document.getElementById("adminPanel").style.display = "block";
+      } else {
+        alert("Contraseña incorrecta");
+      }
+    }
+
+    function showVotingForm() {
+      const form = document.getElementById("voteForm");
+      form.innerHTML = "";
+      for (const category in categories) {
+        const div = document.createElement("div");
+        div.className = "category";
+        div.innerHTML = `<h3>${category}</h3>`;
+        const select1 = makeSelect(category, 1);
+        const select2 = makeSelect(category, 2);
+        const select3 = makeSelect(category, 3);
+        div.appendChild(select1);
+        div.appendChild(select2);
+        div.appendChild(select3);
+        form.appendChild(div);
+      }
+    }
+
+    function makeSelect(category, rank) {
+      const select = document.createElement("select");
+      select.innerHTML = `<option disabled selected>${rank}° lugar</option>`;
+      categories[category].forEach(n => {
+        const option = document.createElement("option");
+        option.value = n;
+        option.textContent = n;
+        select.appendChild(option);
+      });
+      select.name = `${category}-rank${rank}`;
+      return select;
+    }
+
+    function submitVotes() {
+      const data = {};
+      const form = document.getElementById("voteForm");
+      const selects = form.querySelectorAll("select");
+      for (let s of selects) {
+        if (!s.value || s.value.includes("lugar")) {
+          alert("Debes completar todos los votos.");
+          return;
+        }
+      }
+
+      for (const category in categories) {
+        const s1 = document.querySelector(`select[name="${category}-rank1"]`).value;
+        const s2 = document.querySelector(`select[name="${category}-rank2"]`).value;
+        const s3 = document.querySelector(`select[name="${category}-rank3"]`).value;
+        if (new Set([s1, s2, s3]).size < 3) {
+          alert(`No puedes votar por el mismo en ${category}`);
+          return;
+        }
+        data[category] = {
+          [s1]: 3,
+          [s2]: 2,
+          [s3]: 1
+        };
+      }
+
+      localStorage.setItem("votes_" + currentUser, JSON.stringify(data));
+      alert("¡Gracias por votar!");
+      location.reload();
+    }
+
+    function resetVotes() {
+      for (let key in localStorage) {
+        if (key.startsWith("votes_")) {
+          localStorage.removeItem(key);
+        }
+      }
+      alert("Votaciones reiniciadas");
+    }
+
+    function viewResults() {
+      const result = {};
+      for (const category in categories) {
+        result[category] = {};
+      }
+      for (let key in localStorage) {
+        if (!key.startsWith("votes_")) continue;
+        const vote = JSON.parse(localStorage.getItem(key));
+        for (const category in vote) {
+          for (const name in vote[category]) {
+            if (!result[category][name]) result[category][name] = 0;
+            result[category][name] += vote[category][name];
+          }
+        }
+      }
+
+      let output = "";
+      for (const category in result) {
+        output += `\n📋 ${category}\n`;
+        const sorted = Object.entries(result[category])
+          .sort((a,b)=>b[1]-a[1])
+          .map(([n,p])=>` - ${n}: ${p} pts`);
+        output += sorted.join("\n") + "\n";
+      }
+
+      document.getElementById("results").textContent = output;
+    }
+  </script>
+</body>
+</html>

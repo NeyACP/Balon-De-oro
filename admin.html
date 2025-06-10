@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel de Administrador</title>
+  <style>
+    body {
+      background-color: black;
+      color: gold;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 30px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: gold;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 10px;
+    }
+    pre {
+      background: #111;
+      color: white;
+      padding: 15px;
+      text-align: left;
+      max-height: 300px;
+      overflow-y: scroll;
+    }
+  </style>
+</head>
+<body>
+  <h1>Panel del Administrador</h1>
+  <button onclick="verResultados()">Ver Resultados</button>
+  <button onclick="resetearVotos()">Resetear Votos</button>
+  <div id="resultados"></div>
+
+  <script>
+    function verResultados() {
+      let resultados = {};
+      for (let key in localStorage) {
+        if (key.startsWith("voto_")) {
+          const votos = JSON.parse(localStorage.getItem(key));
+          if (votos.balon) {
+            const { primero, segundo, tercero } = votos.balon;
+            resultados[primero] = (resultados[primero] || 0) + 3;
+            resultados[segundo] = (resultados[segundo] || 0) + 2;
+            resultados[tercero] = (resultados[tercero] || 0) + 1;
+          }
+        }
+      }
+
+      let output = "<h2>Resultados Balón de Oro</h2><pre>";
+      const sorted = Object.entries(resultados).sort((a, b) => b[1] - a[1]);
+      sorted.forEach(([nombre, puntos], index) => {
+        output += `${index + 1}. ${nombre}: ${puntos} puntos\n`;
+      });
+      output += "</pre>";
+      document.getElementById("resultados").innerHTML = output;
+    }
+
+    function resetearVotos() {
+      if (confirm("¿Estás seguro de borrar todos los votos?")) {
+        for (let key in localStorage) {
+          if (key.startsWith("voto_")) {
+            localStorage.removeItem(key);
+          }
+        }
+        alert("Votos eliminados correctamente.");
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>
