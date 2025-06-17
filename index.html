@@ -44,24 +44,8 @@
   <button onclick="toggleMusic()">🎵 Pausar/Reproducir Música</button>
 
   <div id="login">
-    <h2>Ingresa como:</h2>
-    <select id="userSelect">
-      <option disabled selected>Selecciona tu nombre</option>
-      <option>Ney.Cp</option>
-      <option>Doc</option>
-      <option>Jordan</option>
-      <option>David</option>
-      <option>Franco</option>
-      <option>Abner</option>
-      <option>Pingüino</option>
-      <option>Alex</option>
-      <option>Alysmeg</option>
-      <option>Sebastián</option>
-      <option>Shane</option>
-      <option>Yo nomás</option>
-      <option>Gojo</option>
-    </select>
-    <button onclick="enterAsVoter()">Entrar</button>
+    <h2>Entrar a votar:</h2>
+<button onclick="enterAsVoter()">Entrar</button>>
 
     <h2>¿Eres administrador?</h2>
     <input type="password" id="adminPass" placeholder="Contraseña">
@@ -112,21 +96,17 @@
 
     let currentUser = "";
 
-    function enterAsVoter() {
-      const name = document.getElementById("userSelect").value;
-      if (!name || name === "Selecciona tu nombre") {
-        alert("Selecciona un nombre válido.");
-        return;
-      }
-      currentUser = name;
-      if (localStorage.getItem("votes_" + name)) {
-        alert("Ya has votado.");
-        return;
-      }
-      document.getElementById("login").style.display = "none";
-      document.getElementById("voting").style.display = "block";
-      showVotingForm();
-    }
+ let currentUser = "dispositivo_actual";
+
+function enterAsVoter() {
+  if (localStorage.getItem("votes_" + currentUser)) {
+    alert("Ya has votado desde este dispositivo.");
+    return;
+  }
+  document.getElementById("login").style.display = "none";
+  document.getElementById("voting").style.display = "block";
+  showVotingForm();
+}
 
     function enterAsAdmin() {
       const pass = document.getElementById("adminPass").value;
