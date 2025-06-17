@@ -12,11 +12,6 @@
       text-align: center;
       padding: 30px;
     }
-  <div id="startScreen" style="position: fixed; top:0; left:0; width:100%; height:100%; background:black; color:gold; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999;">
-  <h2>Balón d'Or Lucky League 2025</h2>
-  <p>Haz clic para comenzar la experiencia</p>
-  <button onclick="startExperience()">🎵 Iniciar</button>
-</div>
     h1 {
       font-size: 2.5rem;
     }
@@ -29,23 +24,44 @@
       font-weight: bold;
       cursor: pointer;
     }
-    select {
+    select, input {
       padding: 10px;
       margin: 10px;
+      border-radius: 8px;
+      border: none;
     }
     .category {
       margin-top: 40px;
     }
+    #startScreen {
+      position: fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      background:black;
+      color:gold;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+    }
   </style>
 </head>
 <body>
+  <div id="startScreen">
+    <h2>Balón d'Or Lucky League 2025</h2>
+    <p>Haz clic para comenzar la experiencia</p>
+    <button onclick="startExperience()">🎵 Iniciar</button>
+  </div>
+
   <h1>Balón d'Or Lucky League 2025</h1>
   <audio id="bgMusic" src="cancion.mp3" loop></audio>
   <button onclick="toggleMusic()">🎵 Pausar/Reproducir Música</button>
 
   <div id="login">
-    <h2>Entrar a votar:</h2>
-<button onclick="enterAsVoter()">Entrar</button>>
+    <h2>Ingresa tu nombre:</h2>
+    <input type="text" id="userName" placeholder="Tu nombre (cualquiera)">
+    <button onclick="enterAsVoter()">Entrar como Votante</button>
 
     <h2>¿Eres administrador?</h2>
     <input type="password" id="adminPass" placeholder="Contraseña">
@@ -66,13 +82,14 @@
   </div>
 
   <script>
-  function startExperience() {
-  document.getElementById("startScreen").style.display = "none";
-  const music = document.getElementById("bgMusic");
-  music.play().catch(() => {
-    console.log("Chrome bloqueó la música. Espera interacción del usuario.");
-  });
-}
+    function startExperience() {
+      document.getElementById("startScreen").style.display = "none";
+      const music = document.getElementById("bgMusic");
+      music.play().catch(() => {
+        console.log("Chrome bloqueó la música. Espera interacción del usuario.");
+      });
+    }
+
     const music = document.getElementById("bgMusic");
 
     function toggleMusic() {
@@ -96,17 +113,23 @@
 
     let currentUser = "";
 
- let currentUser = "dispositivo_actual";
+    function enterAsVoter() {
+      const name = document.getElementById("userName").value.trim();
+      if (!name) {
+        alert("Ingresa un nombre válido.");
+        return;
+      }
+      currentUser = name;
 
-function enterAsVoter() {
-  if (localStorage.getItem("votes_" + currentUser)) {
-    alert("Ya has votado desde este dispositivo.");
-    return;
-  }
-  document.getElementById("login").style.display = "none";
-  document.getElementById("voting").style.display = "block";
-  showVotingForm();
-}
+      if (localStorage.getItem("votes_" + currentUser)) {
+        alert("Ya has votado desde este nombre.");
+        return;
+      }
+
+      document.getElementById("login").style.display = "none";
+      document.getElementById("voting").style.display = "block";
+      showVotingForm();
+    }
 
     function enterAsAdmin() {
       const pass = document.getElementById("adminPass").value;
