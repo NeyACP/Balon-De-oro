@@ -51,25 +51,25 @@
     <h2>Balón d'Or Lucky League 2025</h2>
     <p>Haz clic para comenzar la experiencia</p>
     <button onclick="startExperience()">🎵 Iniciar</button>
-  </div> <h1>Balón d'Or Lucky League 2025</h1>
+  </div>  <h1>Balón d'Or Lucky League 2025</h1>
   <audio id="bgMusic" src="cancion.mp3" loop></audio>
-  <button onclick="toggleMusic()">🎵 Pausar/Reproducir Música</button> <div id="login">
+  <button onclick="toggleMusic()">🎵 Pausar/Reproducir Música</button>  <div id="login">
     <h2>Ingresa tu nombre:</h2>
     <input type="text" id="userName" placeholder="Tu nombre (cualquiera)">
     <button onclick="enterAsVoter()">Entrar como Votante</button><h2>¿Eres administrador?</h2>
 <input type="password" id="adminPass" placeholder="Contraseña">
 <button onclick="enterAsAdmin()">Entrar como Admin</button>
 
-  </div> <div id="voting" style="display:none;">
+  </div>  <div id="voting" style="display:none;">
     <h2>Votación</h2>
     <form id="voteForm"></form>
     <button onclick="submitVotes()">Enviar Votos</button>
-  </div> <div id="adminPanel" style="display:none;">
+  </div>  <div id="adminPanel" style="display:none;">
     <h2>Panel de Administrador</h2>
     <button onclick="resetVotes()">🔁 Reiniciar Votaciones</button>
     <button onclick="viewResults()">📊 Ver Resultados</button>
     <pre id="results" style="text-align:left;"></pre>
-  </div> <!-- SDK Firebase para Web --> <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script> <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script> <script>
+  </div>  <!-- SDK Firebase para Web -->  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCL-sg8lISPRYeNX5yUTtGtJaFgKPezx80",
       authDomain: "balon-de-oro-2025.firebaseapp.com",
@@ -81,7 +81,7 @@
     };
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-  </script> <script>
+  </script>  <script>
     function startExperience() {
       document.getElementById("startScreen").style.display = "none";
       const music = document.getElementById("bgMusic");
@@ -194,7 +194,7 @@
         };
       }
       db.collection("votes").doc(currentUser).set(data).then(() => {
-        alert("¡Gracias por votar!");
+        alert("\u00a1Gracias por votar!");
         location.reload();
       });
     }
@@ -237,3 +237,251 @@
     }
   </script></body>
 </html>
+
+
+---------- Forwarded message ---------
+De: Neyler Angel Chuquin Panduro <neylerangelchuquinpanduro05@gmail.com>
+Date: sáb, 28 de jun de 2025, 6:23 p. m.
+Subject: Re: Codigo
+To: Neyler Angel Chuquin Panduro <nchuquinpanduro@gmail.com>
+
+
+https://balon-de-oro-one.vercel.app
+
+El sáb, 28 jun 2025 a la(s) 6:11 p.m., Neyler Angel Chuquin Panduro (neylerangelchuquinpanduro05@gmail.com) escribió:
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Balón d'Or Lucky League 2025</title>
+  <style>
+    body {
+      background: black;
+      color: gold;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding: 30px;
+    }
+    h1 {
+      font-size: 2.5rem;
+    }
+    button {
+      padding: 12px 20px;
+      margin: 10px;
+      background: gold;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    select, input {
+      padding: 10px;
+      margin: 10px;
+      border-radius: 8px;
+      border: none;
+    }
+    .category {
+      margin-top: 40px;
+    }
+    #startScreen {
+      position: fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      background:black;
+      color:gold;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+    }
+  </style>
+</head>
+<body>
+  <div id="startScreen">
+    <h2>Balón d'Or Lucky League 2025</h2>
+    <p>Haz clic para comenzar la experiencia</p>
+    <button onclick="startExperience()">🎵 Iniciar</button>
+  </div>
+
+  <h1>Balón d'Or Lucky League 2025</h1>
+  <audio id="bgMusic" src="cancion.mp3" loop></audio>
+  <button onclick="toggleMusic()">🎵 Pausar/Reproducir Música</button>
+
+  <div id="login">
+    <h2>Ingresa tu nombre:</h2>
+    <input type="text" id="userName" placeholder="Tu nombre (cualquiera)">
+    <button onclick="enterAsVoter()">Entrar como Votante</button>
+
+    <h2>¿Eres administrador?</h2>
+    <input type="password" id="adminPass" placeholder="Contraseña">
+    <button onclick="enterAsAdmin()">Entrar como Admin</button>
+  </div>
+
+  <div id="voting" style="display:none;">
+    <h2>Votación</h2>
+    <form id="voteForm"></form>
+    <button onclick="submitVotes()">Enviar Votos</button>
+  </div>
+
+  <div id="adminPanel" style="display:none;">
+    <h2>Panel de Administrador</h2>
+    <button onclick="resetVotes()">🔁 Reiniciar Votaciones</button>
+    <button onclick="viewResults()">📊 Ver Resultados</button>
+    <pre id="results" style="text-align:left;"></pre>
+  </div>
+
+  <script>
+    function startExperience() {
+      document.getElementById("startScreen").style.display = "none";
+      const music = document.getElementById("bgMusic");
+      music.play().catch(() => {
+        console.log("Chrome bloqueó la música. Espera interacción del usuario.");
+      });
+    }
+
+    const music = document.getElementById("bgMusic");
+
+    function toggleMusic() {
+      if (music.paused) {
+        music.play();
+      } else {
+        music.pause();
+      }
+    }
+
+    const categories = {
+      "Balón de Oro": [
+        "Jordan", "Sebastián", "Rodrigo Poyet", "Chris", "Alex", "Achelos", "Franco", "Dylan Briceño",
+        "Hiro", "Seen", "Iker", "Joseph", "Gojo", "Julio", "Emanuel"
+      ],
+      "Mejor Arquero": ["Dylan Briceño", "Chris", "Chuy", "Tibu", "Hiro", "Jared"],
+      "Mejor Mediocampista/Defensa": ["Pingüino", "Anchelos", "Cat", "Emmamuel"],
+      "Mejor Admin": ["Ney", "Doc", "David", "Cami", "Tibu", "Franco", "Jordan"],
+      "Mejor Equipo": ["Predators", "Berserk", "Royal", "Predators", "Bastard", "Manshine"]
+    };
+
+    let currentUser = "";
+
+    function enterAsVoter() {
+      const name = document.getElementById("userName").value.trim();
+      if (!name) {
+        alert("Ingresa un nombre válido.");
+        return;
+      }
+      currentUser = name;
+
+      if (localStorage.getItem("votes_" + currentUser)) {
+        alert("Ya has votado desde este nombre.");
+        return;
+      }
+
+      document.getElementById("login").style.display = "none";
+      document.getElementById("voting").style.display = "block";
+      showVotingForm();
+    }
+
+    function enterAsAdmin() {
+      const pass = document.getElementById("adminPass").value;
+      if (pass === "Neyler2025") {
+        document.getElementById("login").style.display = "none";
+        document.getElementById("adminPanel").style.display = "block";
+      } else {
+        alert("Contraseña incorrecta");
+      }
+    }
+
+    function showVotingForm() {
+      const form = document.getElementById("voteForm");
+      form.innerHTML = "";
+      for (const category in categories) {
+        const div = document.createElement("div");
+        div.className = "category";
+        div.innerHTML = `<h3>${category}</h3>`;
+        const select1 = makeSelect(category, 1);
+        const select2 = makeSelect(category, 2);
+        const select3 = makeSelect(category, 3);
+        div.appendChild(select1);
+        div.appendChild(select2);
+        div.appendChild(select3);
+        form.appendChild(div);
+      }
+    }
+
+    function makeSelect(category, rank) {
+      const select = document.createElement("select");
+      select.innerHTML = `<option disabled selected>${rank}° lugar</option>`;
+      categories[category].forEach(n => {
+        const option = document.createElement("option");
+        option.value = n;
+        option.textContent = n;
+        select.appendChild(option);
+      });
+      select.name = `${category}-rank${rank}`;
+      return select;
+    }
+
+    function submitVotes() {
+      const data = {};
+      const form = document.getElementById("voteForm");
+      const selects = form.querySelectorAll("select");
+      for (let s of selects) {
+        if (!s.value || s.value.includes("lugar")) {
+          alert("Debes completar todos los votos.");
+          return;
+        }
+      }
+
+      for (const category in categories) {
+        const s1 = document.querySelector(`select[name="${category}-rank1"]`).value;
+        const s2 = document.querySelector(`select[name="${category}-rank2"]`).value;
+        const s3 = document.querySelector(`select[name="${category}-rank3"]`).value;
+        if (new Set([s1, s2, s3]).size < 3) {
+          alert(`No puedes votar por el mismo en ${category}`);
+          return;
+        }
+        data[category] = {
+          [s1]: 3,
+          [s2]: 2,
+          [s3]: 1
+        };
+      }
+
+      localStorage.setItem("votes_" + currentUser, JSON.stringify(data));
+      alert("¡Gracias por votar!");
+      location.reload();
+    }
+
+    function resetVotes() {
+      for (let key in localStorage) {
+        if (key.startsWith("votes_")) {
+          localStorage.removeItem(key);
+        }
+      }
+      alert("Votaciones reiniciadas");
+    }
+
+    function viewResults() {
+      const result = {};
+      for (const category in categories) {
+        result[category] = {};
+      }
+      for (let key in localStorage) {
+        if (!key.startsWith("votes_")) continue;
+        const vote = JSON.parse(localStorage.getItem(key));
+        for (const category in vote) {
+          for (const name in vote[category]) {
+            if (!result[category][name]) result[category][name] = 0;
+            result[category][name] += vote[category][name];
+          }
+        }
+      }
+
+      let output = "";
+      for (const category in result) {
+        output += `\n📋 ${category}\n`;
+        const sorted = Object.entries(result[category])
+          .sort((a,b)=>b[1]-a[1])
+          .map(([n,p])=>` - ${n}: ${p} pts`);
+        output += sorted.join("\n") + "\n"
