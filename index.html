@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
+<!DOCTYPE html><html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -52,36 +51,37 @@
     <h2>Balón d'Or Lucky League 2025</h2>
     <p>Haz clic para comenzar la experiencia</p>
     <button onclick="startExperience()">🎵 Iniciar</button>
-  </div>
-
-  <h1>Balón d'Or Lucky League 2025</h1>
+  </div> <h1>Balón d'Or Lucky League 2025</h1>
   <audio id="bgMusic" src="cancion.mp3" loop></audio>
-  <button onclick="toggleMusic()">🎵 Pausar/Reproducir Música</button>
-
-  <div id="login">
+  <button onclick="toggleMusic()">🎵 Pausar/Reproducir Música</button> <div id="login">
     <h2>Ingresa tu nombre:</h2>
     <input type="text" id="userName" placeholder="Tu nombre (cualquiera)">
-    <button onclick="enterAsVoter()">Entrar como Votante</button>
+    <button onclick="enterAsVoter()">Entrar como Votante</button><h2>¿Eres administrador?</h2>
+<input type="password" id="adminPass" placeholder="Contraseña">
+<button onclick="enterAsAdmin()">Entrar como Admin</button>
 
-    <h2>¿Eres administrador?</h2>
-    <input type="password" id="adminPass" placeholder="Contraseña">
-    <button onclick="enterAsAdmin()">Entrar como Admin</button>
-  </div>
-
-  <div id="voting" style="display:none;">
+  </div> <div id="voting" style="display:none;">
     <h2>Votación</h2>
     <form id="voteForm"></form>
     <button onclick="submitVotes()">Enviar Votos</button>
-  </div>
-
-  <div id="adminPanel" style="display:none;">
+  </div> <div id="adminPanel" style="display:none;">
     <h2>Panel de Administrador</h2>
     <button onclick="resetVotes()">🔁 Reiniciar Votaciones</button>
     <button onclick="viewResults()">📊 Ver Resultados</button>
     <pre id="results" style="text-align:left;"></pre>
-  </div>
-
-  <script>
+  </div> <!-- SDK Firebase para Web --> <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script> <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script> <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCL-sg8lISPRYeNX5yUTtGtJaFgKPezx80",
+      authDomain: "balon-de-oro-2025.firebaseapp.com",
+      projectId: "balon-de-oro-2025",
+      storageBucket: "balon-de-oro-2025.appspot.com",
+      messagingSenderId: "959409699658",
+      appId: "1:959409699658:web:e8a032cc92fa3848f6bd7",
+      measurementId: "G-8FVFCVFY57"
+    };
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  </script> <script>
     function startExperience() {
       document.getElementById("startScreen").style.display = "none";
       const music = document.getElementById("bgMusic");
@@ -101,10 +101,7 @@
     }
 
     const categories = {
-      "Balón de Oro": [
-        "Jordan", "Sebastián", "Rodrigo Poyet", "Chris", "Alex", "Achelos", "Franco", "Dylan Briceño",
-        "Hiro", "Seen", "Iker", "Joseph", "Gojo", "Julio", "Emanuel"
-      ],
+      "Balón de Oro": ["Jordan", "Sebastián", "Rodrigo Poyet", "Chris", "Alex", "Achelos", "Franco", "Dylan Briceño", "Hiro", "Seen", "Iker", "Joseph", "Gojo", "Julio", "Emanuel"],
       "Mejor Arquero": ["Dylan Briceño", "Chris", "Chuy", "Tibu", "Hiro", "Jared"],
       "Mejor Mediocampista/Defensa": ["Pingüino", "Anchelos", "Cat", "Emmamuel"],
       "Mejor Admin": ["Ney", "Doc", "David", "Cami", "Tibu", "Franco", "Jordan"],
@@ -121,14 +118,15 @@
       }
       currentUser = name;
 
-      if (localStorage.getItem("votes_" + currentUser)) {
-        alert("Ya has votado desde este nombre.");
-        return;
-      }
-
-      document.getElementById("login").style.display = "none";
-      document.getElementById("voting").style.display = "block";
-      showVotingForm();
+      db.collection("votes").doc(currentUser).get().then(doc => {
+        if (doc.exists) {
+          alert("Ya has votado desde este nombre.");
+        } else {
+          document.getElementById("login").style.display = "none";
+          document.getElementById("voting").style.display = "block";
+          showVotingForm();
+        }
+      });
     }
 
     function enterAsAdmin() {
@@ -181,7 +179,6 @@
           return;
         }
       }
-
       for (const category in categories) {
         const s1 = document.querySelector(`select[name="${category}-rank1"]`).value;
         const s2 = document.querySelector(`select[name="${category}-rank2"]`).value;
@@ -196,48 +193,47 @@
           [s3]: 1
         };
       }
-
-      localStorage.setItem("votes_" + currentUser, JSON.stringify(data));
-      alert("¡Gracias por votar!");
-      location.reload();
+      db.collection("votes").doc(currentUser).set(data).then(() => {
+        alert("¡Gracias por votar!");
+        location.reload();
+      });
     }
 
     function resetVotes() {
-      for (let key in localStorage) {
-        if (key.startsWith("votes_")) {
-          localStorage.removeItem(key);
-        }
-      }
-      alert("Votaciones reiniciadas");
+      db.collection("votes").get().then(snapshot => {
+        const batch = db.batch();
+        snapshot.forEach(doc => {
+          batch.delete(doc.ref);
+        });
+        batch.commit().then(() => {
+          alert("Votaciones reiniciadas");
+        });
+      });
     }
 
     function viewResults() {
       const result = {};
-      for (const category in categories) {
-        result[category] = {};
-      }
-      for (let key in localStorage) {
-        if (!key.startsWith("votes_")) continue;
-        const vote = JSON.parse(localStorage.getItem(key));
-        for (const category in vote) {
-          for (const name in vote[category]) {
-            if (!result[category][name]) result[category][name] = 0;
-            result[category][name] += vote[category][name];
+      for (const category in categories) result[category] = {};
+      db.collection("votes").get().then(snapshot => {
+        snapshot.forEach(doc => {
+          const vote = doc.data();
+          for (const category in vote) {
+            for (const name in vote[category]) {
+              if (!result[category][name]) result[category][name] = 0;
+              result[category][name] += vote[category][name];
+            }
           }
+        });
+        let output = "";
+        for (const category in result) {
+          output += `\n📋 ${category}\n`;
+          const sorted = Object.entries(result[category])
+            .sort((a,b)=>b[1]-a[1])
+            .map(([n,p])=>` - ${n}: ${p} pts`);
+          output += sorted.join("\n") + "\n";
         }
-      }
-
-      let output = "";
-      for (const category in result) {
-        output += `\n📋 ${category}\n`;
-        const sorted = Object.entries(result[category])
-          .sort((a,b)=>b[1]-a[1])
-          .map(([n,p])=>` - ${n}: ${p} pts`);
-        output += sorted.join("\n") + "\n";
-      }
-
-      document.getElementById("results").textContent = output;
+        document.getElementById("results").textContent = output;
+      });
     }
-  </script>
-</body>
+  </script></body>
 </html>
