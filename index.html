@@ -83,12 +83,13 @@
     const db = firebase.firestore();
   </script>  <script>
     function startExperience() {
-      document.getElementById("startScreen").style.display = "none";
-      const music = document.getElementById("bgMusic");
-      music.play().catch(() => {
-        console.log("Chrome bloqueó la música. Espera interacción del usuario.");
-      });
-    }
+  document.getElementById("startScreen").style.display = "none";
+  document.getElementById("login").style.display = "block"; // Mostramos el formulario de ingreso
+  const music = document.getElementById("bgMusic");
+  music.play().catch(() => {
+    console.log("Chrome bloqueó la música. Espera interacción del usuario.");
+  });
+}
 
     const music = document.getElementById("bgMusic");
 
