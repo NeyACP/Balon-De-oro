@@ -69,19 +69,25 @@
     <button onclick="resetVotes()">🔁 Reiniciar Votaciones</button>
     <button onclick="viewResults()">📊 Ver Resultados</button>
     <pre id="results" style="text-align:left;"></pre>
-  </div>  <!-- SDK Firebase para Web -->  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCL-sg8lISPRYeNX5yUTtGtJaFgKPezx80",
-      authDomain: "balon-de-oro-2025.firebaseapp.com",
-      projectId: "balon-de-oro-2025",
-      storageBucket: "balon-de-oro-2025.appspot.com",
-      messagingSenderId: "959409699658",
-      appId: "1:959409699658:web:e8a032cc92fa3848f6bd7",
-      measurementId: "G-8FVFCVFY57"
-    };
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-  </script>  <script>
+  </div>  
+<!-- Firebase App (compatibilidad con navegadores normales) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>  
+  <script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCL-sg8lISPRYeNX5yUTtGtJaFgKPezx80",
+    authDomain: "balon-de-oro-2025.firebaseapp.com",
+    projectId: "balon-de-oro-2025",
+    storageBucket: "balon-de-oro-2025.appspot.com",
+    messagingSenderId: "959409699658",
+    appId: "1:959409699658:web:e8a032cc92fa3848f6bd7",
+    measurementId: "G-8FVFCVFY57"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+</script>
+  <script>
     function startExperience() {
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("login").style.display = "block"; // Mostramos el formulario de ingreso
