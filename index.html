@@ -125,15 +125,10 @@
       }
       currentUser = name;
 
-      db.collection("votes").doc(currentUser).get().then(doc => {
-        if (doc.exists) {
-          alert("Ya has votado desde este nombre.");
-        } else {
-          document.getElementById("login").style.display = "none";
-          document.getElementById("voting").style.display = "block";
-          showVotingForm();
-        }
-      });
+     document.getElementById("login").style.display = "none";
+document.getElementById("voting").style.display = "block";
+showVotingForm();
+
     }
 
     function enterAsAdmin() {
