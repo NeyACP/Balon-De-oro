@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Final Strike League</title>
+  <title>The Final Strike</title>
   <style>
     body {
       background: #0f0f0f;
@@ -33,7 +33,7 @@
 </head>
 <body>
 
-  <h1>Final Strike League</h1>
+  <h1>The Final Strike</h1>
 
   <!-- ABRIR COFRES -->
   <a class="btn" href="cofres_pro.html">
@@ -45,9 +45,24 @@
     🏆 Votaciones
   </a>
 
+  <!-- PANEL ADMIN -->
+  <a class="btn" onclick="accederAdmin()">
+    🔑 Panel Admin
+  </a>
+
   <script>
     function comingSoon() {
       alert("⚠️ Votaciones disponibles pronto");
+    }
+
+    function accederAdmin() {
+      const password = prompt("Introduce la contraseña de admin:");
+      // Cambia "1234" por la contraseña real que quieras
+      if(password === "FSL9899199123") {
+        window.location.href = "admin.html";
+      } else if(password !== null) {
+        alert("❌ Contraseña incorrecta");
+      }
     }
   </script>
 
