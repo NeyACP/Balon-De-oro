@@ -29,22 +29,23 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    console.log("🔥 Firebase inicializado");
+    console.log("🔥 Firebase inicializado correctamente");
 
     document.getElementById("btnFirebase").addEventListener("click", () => {
       alert("Firebase cargado correctamente ✅");
     });
 
-    document.getElementById("btnConexion").addEventListener("click", () => {
-      set(ref(db, "prueba"), {
-        estado: "ok",
-        fecha: Date.now()
-      })
-      .then(() => alert("Conexión exitosa ✅"))
-      .catch(e => {
-        console.error(e);
-        alert("Error ❌");
-      });
+    document.getElementById("btnConexion").addEventListener("click", async () => {
+      try {
+        await set(ref(db, "prueba"), {
+          estado: "ok",
+          fecha: Date.now()
+        });
+        alert("Conexión exitosa con Firebase ✅");
+      } catch (error) {
+        console.error(error);
+        alert("Error al conectar ❌");
+      }
     });
   </script>
 
