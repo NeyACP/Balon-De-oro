@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Cofres – Final Strike League</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0e0e0e;
+            color: white;
+            text-align: center;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+        }
+        table {
+            margin: auto;
+            border-collapse: collapse;
+            width: 95%;
+        }
+        th, td {
+            border: 1px solid #444;
+            padding: 8px;
+        }
+        th {
+            background: #222;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<h1>🧑‍💼 Panel Admin – Cofres</h1>
+
+<!-- LOGIN -->
+<div id="login">
+    <p>🔐 Ingresa contraseña</p>
+    <input type="password" id="password">
+    <br>
+    <button onclick="login()">Entrar</button>
+</div>
+
+<!-- PANEL -->
+<div id="panel" class="hidden">
+
+    <button onclick="cargarDatos()">🔄 Actualizar</button>
+    <button onclick="cerrarSesion()">🚪 Cerrar sesión</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Jugador</th>
+                <th>Perk</th>
+                <th>Rareza</th>
+                <th>Código</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody id="tabla"></tbody>
+    </table>
+</div>
+
+<script>
+    const PASSWORD_ADMIN = "FSL9899199123"; // 🔴 CAMBIA ESTO
+
+    function login() {
+        const pass = document.getElementById("password").value;
+        if (pass === PASSWORD_ADMIN) {
+            document.getElementById("login").style.display = "none";
+            document.getElementById("panel").style.display = "block";
+            localStorage.setItem("adminCofres", "true");
+            cargarDatos();
+        } else {
+            alert("❌ Contraseña incorrecta");
+        }
+    }
+
+    function cerrarSesion() {
+        localStorage.removeItem("adminCofres");
+        location.reload();
+    }
+
+    function cargarDatos() {
+        let historial = JSON.parse(localStorage.getItem("historialCofres")) || [];
+        let tabla = document.getElementById("tabla");
+        tabla.innerHTML = "";
+
+        historial.forEach((item, i) => {
+            tabla.innerHTML += `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${item.jugador}</td>
+                    <td>${item.perk}</td>
+                    <td>${item.rareza}</td>
+                    <td>${item.codigo}</td>
+                    <td>${item.fecha}</td>
+                </tr>
+            `;
+        });
+    }
+
+    // Mantener sesión
+    if (localStorage.getItem("adminCofres") === "true") {
+        document.getElementById("login").style.display = "none";
+        document.getElementById("panel").style.display = "block";
+        cargarDatos();
+    }
+</script>
+
+</body>
+</html>
