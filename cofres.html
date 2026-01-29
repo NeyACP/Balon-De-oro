@@ -32,8 +32,10 @@
 </head>
 <body>
 
-<h1>🎁 Cofres – Final Strike League</h1>
+<h1>🎁 Cofres – Final Strike League</h1> 
 <p>Haz clic en el cofre para abrirlo</p>
+<h3>🔑 Ingresa tu código de cofre</h3>
+<input type="text" id="codigoInput" placeholder="Código aquí">
 
 <button onclick="abrirCofre()">Abrir Cofre</button>
 
@@ -45,6 +47,16 @@
 <div class="log" id="log"></div>
 
 <script>
+    // Códigos válidos (ejemplo)
+    let codigosValidos = JSON.parse(localStorage.getItem("codigosValidos")) || [
+        "FS-001",
+        "FS-002",
+        "FS-003"
+    ];
+
+    let codigosUsados = JSON.parse(localStorage.getItem("codigosUsados")) || [];
+
+    
     let cofresAbiertos = 0;
     let piedad = 0;
 
@@ -70,42 +82,69 @@
     ];
 
     function abrirCofre() {
-        cofresAbiertos++;
-        piedad++;
+    let codigo = document.getElementById("codigoInput").value.trim();
 
-        let resultado = "";
-        let rareza = "";
-
-        // 🎯 Sistema de piedad
-        if (piedad >= PIEDAD_MAX) {
-            resultado = obtenerAleatoria(perksLegendaria);
-            rareza = "LEGENDARIA 👑 (GARANTIZADA)";
-            piedad = 0;
-        } else {
-            let random = Math.random() * 100;
-
-            if (random < 5) {
-                resultado = obtenerAleatoria(perksLegendaria);
-                rareza = "LEGENDARIA 👑";
-                piedad = 0;
-            } else if (random < 30) {
-                resultado = obtenerAleatoria(perksRara);
-                rareza = "RARA 💎";
-            } else {
-                resultado = obtenerAleatoria(perksBronze);
-                rareza = "BRONZE 🟤";
-            }
-        }
-
-        document.getElementById("contador").textContent = cofresAbiertos;
-        document.getElementById("piedad").textContent = piedad;
-
-        document.getElementById("resultado").innerHTML =
-            `<strong>${resultado}</strong><br>Rareza: ${rareza}`;
-
-        document.getElementById("log").innerHTML +=
-            `#${cofresAbiertos} → ${resultado} (${rareza})<br>`;
+    if (codigo === "") {
+        alert("❌ Ingresa un código primero");
+        return;
     }
+
+    if (!codigosValidos.includes(codigo)) {
+        alert("❌ Código inválido o ya usado");
+        return;
+    }
+
+    // Marcar código como usado
+    codigosValidos = codigosValidos.filter(c => c !== codigo);
+    codigosUsados.push(codigo);
+
+    localStorage.setItem("codigosValidos", JSON.stringify(codigosValidos));
+    localStorage.setItem("codigosUsados", JSON.stringify(codigosUsados));
+
+    cofresAbiertos++;
+    piedad++;
+
+    let resultado = "";
+    let rareza = "";
+
+    if (piedad >= PIEDAD_MAX) {
+        resultado = obtenerAleatoria(perksLegendaria);
+        rareza = "LEGENDARIA 👑 (GARANTIZADA)";
+        piedad = 0;
+    } else {
+        let random = Math.random() * 100;
+
+        if (random < 5) {
+            resultado = obtenerAleatoria(perksLegendaria);
+            rareza = "LEGENDARIA 👑";
+            piedad = 0;
+        } else if (random < 30) {
+            resultado = obtenerAleatoria(perksRara);
+            rareza = "RARA 💎";
+        } else {
+            resultado = obtenerAleatoria(perksBronze);
+            rareza = "BRONZE 🟤";
+        }
+    }
+
+    document.getElementById("contador").textContent = cofresAbiertos;
+    document.getElementById("piedad").textContent = piedad;
+
+    document.getElementById("resultado").innerHTML =
+        `<strong>${resultado}</strong><br>Rareza: ${rareza}<br>Código usado: ${codigo}`;
+
+    // Guardar historial
+    let historial = JSON.parse(localStorage.getItem("historialCofres")) || [];
+    historial.push({
+        codigo: codigo,
+        perk: resultado,
+        rareza: rareza,
+        fecha: new Date().toLocaleString()
+    });
+
+    localStorage.setItem("historialCofres", JSON.stringify(historial));
+}
+
 
     function obtenerAleatoria(lista) {
         return lista[Math.floor(Math.random() * lista.length)];
