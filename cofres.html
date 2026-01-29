@@ -2,104 +2,114 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-   <title>Cofres - The Final Strike League</title>
-
+    <title>Cofres – Final Strike League</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: #0f172a;
+            background: #0f0f0f;
             color: white;
             text-align: center;
-            padding-top: 50px;
         }
-
-        .cofre {
-            width: 150px;
-            height: 150px;
-            background: #facc15;
-            margin: 20px auto;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .cofre:hover {
-            transform: scale(1.05);
-        }
-
-        #resultado {
-            margin-top: 30px;
-            font-size: 22px;
-        }
-
         button {
-            margin-top: 30px;
-            padding: 10px 20px;
+            padding: 12px 20px;
             font-size: 16px;
             cursor: pointer;
+            margin: 10px;
+        }
+        .resultado {
+            margin-top: 20px;
+            font-size: 20px;
+        }
+        .log {
+            margin-top: 20px;
+            font-size: 14px;
+            max-height: 150px;
+            overflow-y: auto;
+            border-top: 1px solid #444;
+            padding-top: 10px;
         }
     </style>
 </head>
-
 <body>
 
-  <h1>🎁 Cofre de The Final Strike League</h1>
-    <p>Haz clic en el cofre para abrirlo</p>
+<h1>🎁 Cofres – Final Strike League</h1>
+<p>Haz clic en el cofre para abrirlo</p>
 
-    <div class="cofre" onclick="abrirCofre()">ABRIR</div>
-
-    <div id="resultado"></div>
-
-    <button onclick="resetear()">Abrir otro cofre</button> 
-  
-<h2>🎁 Abrir Cofre</h2>
 <button onclick="abrirCofre()">Abrir Cofre</button>
 
-<p id="resultado" style="margin-top:20px;font-size:18px;"></p>
+<p>Cofres abiertos: <span id="contador">0</span></p>
+<p>Piedad: <span id="piedad">0</span> / 20</p>
 
-    <script>
-const perks = {
-  bronce: [
-    "Perk del Ex Delantero",
-    "Perk del Monstruo",
-    "Perk del Maestro de la Adaptación",
-    "Perk del León Rojo",
-    "Perk de No Voy a Perder",
-    "Perk de Gagamaru"
-  ],
-  rara: [
-    "Perk de Hiori"
-  ],
-  legendaria: [
-    "Perk del Emperador",
-    "Perk del Genio Total",
-    "Perk del Egoísta"
-  ]
-};
+<div class="resultado" id="resultado"></div>
 
-function abrirCofre() {
-  const random = Math.random() * 100;
-  let rareza;
-  let perk;
+<div class="log" id="log"></div>
 
-  if (random < 70) {
-    rareza = "Bronce";
-    perk = perks.bronce[Math.floor(Math.random() * perks.bronce.length)];
-  } else if (random < 95) {
-    rareza = "Rara";
-    perk = perks.rara[0];
-  } else {
-    rareza = "Legendaria";
-    perk = perks.legendaria[Math.floor(Math.random() * perks.legendaria.length)];
-  }
+<script>
+    let cofresAbiertos = 0;
+    let piedad = 0;
 
-  document.getElementById("resultado").innerHTML =
-    "🎉 <b>" + perk + "</b><br>Rareza: <b>" + rareza + "</b>";
-}
+    const PIEDAD_MAX = 20; // Cada 20 cofres = legendaria garantizada
+
+    const perksBronze = [
+        "Perk de Gagamaru",
+        "Perk León Rojo",
+        "Perk No perderé de vuelta",
+        "Perk EX Delantero",
+        "Perk del Monstruo",
+        "Perk Maestro de la Adaptabilidad"
+    ];
+
+    const perksRara = [
+        "Perk de Hiori"
+    ];
+
+    const perksLegendaria = [
+        "Perk del Emperador",
+        "Perk del Egoísta",
+        "Perk del Genio Total"
+    ];
+
+    function abrirCofre() {
+        cofresAbiertos++;
+        piedad++;
+
+        let resultado = "";
+        let rareza = "";
+
+        // 🎯 Sistema de piedad
+        if (piedad >= PIEDAD_MAX) {
+            resultado = obtenerAleatoria(perksLegendaria);
+            rareza = "LEGENDARIA 👑 (GARANTIZADA)";
+            piedad = 0;
+        } else {
+            let random = Math.random() * 100;
+
+            if (random < 5) {
+                resultado = obtenerAleatoria(perksLegendaria);
+                rareza = "LEGENDARIA 👑";
+                piedad = 0;
+            } else if (random < 30) {
+                resultado = obtenerAleatoria(perksRara);
+                rareza = "RARA 💎";
+            } else {
+                resultado = obtenerAleatoria(perksBronze);
+                rareza = "BRONZE 🟤";
+            }
+        }
+
+        document.getElementById("contador").textContent = cofresAbiertos;
+        document.getElementById("piedad").textContent = piedad;
+
+        document.getElementById("resultado").innerHTML =
+            `<strong>${resultado}</strong><br>Rareza: ${rareza}`;
+
+        document.getElementById("log").innerHTML +=
+            `#${cofresAbiertos} → ${resultado} (${rareza})<br>`;
+    }
+
+    function obtenerAleatoria(lista) {
+        return lista[Math.floor(Math.random() * lista.length)];
+    }
 </script>
 
 </body>
