@@ -1,167 +1,76 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Cofres – Final Strike League</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #0f0f0f;
-            color: white;
-            text-align: center;
-        }
-        button {
-            padding: 12px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            margin: 10px;
-        }
-        .resultado {
-            margin-top: 20px;
-            font-size: 20px;
-        }
-        .log {
-            margin-top: 20px;
-            font-size: 14px;
-            max-height: 150px;
-            overflow-y: auto;
-            border-top: 1px solid #444;
-            padding-top: 10px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Prueba Firebase</title>
 </head>
+
 <body>
-<script type="module">
-    
-<h1>🎁 Cofres – Final Strike League</h1> 
-<p>Haz clic en el cofre para abrirlo</p>
-    <h3>👤 Nombre del jugador</h3>
-<input type="text" id="nombreJugador" placeholder="Tu nombre aquí">
 
-<h3>🔑 Ingresa tu código de cofre</h3>
-<input type="text" id="codigoInput" placeholder="Código aquí">
+  <h1>🔥 Prueba Firebase</h1>
+    <button onclick="probarFirebase()">Probar Firebase</button>
+  <button onclick="probarFirebase()">Probar conexión</button>
 
-<button onclick="abrirCofre()">Abrir Cofre</button>
+  <!-- Firebase SDKs (CLÁSICO, SIN MODULE) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
 
-<p>Cofres abiertos: <span id="contador">0</span></p>
-<p>Piedad: <span id="piedad">0</span> / 20</p>
+  <script>
+    // ⛔ AQUÍ AÚN NO TOQUES NADA ⛔
+    const firebaseConfig = {
+      apiKey: "PEGA_AQUI",
+      authDomain: "PEGA_AQUI",
+      databaseURL: "PEGA_AQUI",
+      projectId: "PEGA_AQUI",
+      storageBucket: "PEGA_AQUI",
+      messagingSenderId: "PEGA_AQUI",
+      appId: "PEGA_AQUI"
+    };
 
-<div class="resultado" id="resultado"></div>
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-<div class="log" id="log"></div>
+    function probarFirebase() {
+      db.ref("prueba").set({
+        mensaje: "Firebase conectado correctamente",
+        tiempo: Date.now()
+      }).then(() => {
+        alert("✅ FUNCIONA. Firebase conectado.");
+      }).catch(err => {
+        console.error(err);
+        alert("❌ Error. Mira la consola.");
+      });
+    }
+  </script>
+<!-- Firebase SDKs clásicos -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
 
 <script>
-    // Códigos válidos (ejemplo)
-    let codigosValidos = JSON.parse(localStorage.getItem("codigosValidos")) || [
-        "FS-001",
-        "FS-002",
-        "FS-003"
-    ];
+  // Configuración de Firebase (USA LA TUYA)
+  const firebaseConfig = {
+    apiKey: "AIzaSyAzqFQflwICESu5CtVuVh8r54coZmTp5UM",
+    authDomain: "thefinalstrike-4358b.firebaseapp.com",
+    databaseURL: "https://thefinalstrike-4358b-default-rtdb.firebaseio.com",
+    projectId: "thefinalstrike-4358b",
+    storageBucket: "thefinalstrike-4358b.firebasestorage.app",
+    messagingSenderId: "857358899579",
+    appId: "1:857358899579:web:a56cd2f0f75df09eecc5de"
+  };
 
-    let codigosUsados = JSON.parse(localStorage.getItem("codigosUsados")) || [];
+  // Inicializar Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
 
-    
-    let cofresAbiertos = 0;
-    let piedad = 0;
-
-    const PIEDAD_MAX = 20; // Cada 20 cofres = legendaria garantizada
-
-    const perksBronze = [
-        "Perk de Gagamaru",
-        "Perk León Rojo",
-        "Perk No perderé de vuelta",
-        "Perk EX Delantero",
-        "Perk del Monstruo",
-        "Perk Maestro de la Adaptabilidad"
-    ];
-
-    const perksRara = [
-        "Perk de Hiori"
-    ];
-
-    const perksLegendaria = [
-        "Perk del Emperador",
-        "Perk del Egoísta",
-        "Perk del Genio Total"
-    ];
-
-    function abrirCofre() {
-    let nombre = document.getElementById("nombreJugador").value.trim();
-    let codigo = document.getElementById("codigoInput").value.trim();
-
-    if (nombre === "") {
-        alert("❌ Ingresa tu nombre");
-        return;
-    }
-
-    if (codigo === "") {
-        alert("❌ Ingresa un código");
-        return;
-    }
-
-    if (!codigosValidos.includes(codigo)) {
-        alert("❌ Código inválido o ya usado");
-        return;
-    }
-
-
-    // Marcar código como usado
-    codigosValidos = codigosValidos.filter(c => c !== codigo);
-    codigosUsados.push(codigo);
-
-    localStorage.setItem("codigosValidos", JSON.stringify(codigosValidos));
-    localStorage.setItem("codigosUsados", JSON.stringify(codigosUsados));
-
-    cofresAbiertos++;
-    piedad++;
-
-    let resultado = "";
-    let rareza = "";
-
-    if (piedad >= PIEDAD_MAX) {
-        resultado = obtenerAleatoria(perksLegendaria);
-        rareza = "LEGENDARIA 👑 (GARANTIZADA)";
-        piedad = 0;
-    } else {
-        let random = Math.random() * 100;
-
-        if (random < 5) {
-            resultado = obtenerAleatoria(perksLegendaria);
-            rareza = "LEGENDARIA 👑";
-            piedad = 0;
-        } else if (random < 30) {
-            resultado = obtenerAleatoria(perksRara);
-            rareza = "RARA 💎";
-        } else {
-            resultado = obtenerAleatoria(perksBronze);
-            rareza = "BRONZE 🟤";
-        }
-    }
-
-    document.getElementById("contador").textContent = cofresAbiertos;
-    document.getElementById("piedad").textContent = piedad;
-
-    document.getElementById("resultado").innerHTML =
-        `<strong>${resultado}</strong><br>Rareza: ${rareza}<br>Código usado: ${codigo}`;
-
-    // Guardar historial
-    let historial = JSON.parse(localStorage.getItem("historialCofres")) || [];
-   historial.push({
-    jugador: nombre,
-    codigo: codigo,
-    perk: resultado,
-    rareza: rareza,
-    fecha: new Date().toLocaleString()
-});
-
-
-    localStorage.setItem("historialCofres", JSON.stringify(historial));
-}
-
-
-    function obtenerAleatoria(lista) {
-        return lista[Math.floor(Math.random() * lista.length)];
-    }
+  // PRUEBA
+  function probarFirebase() {
+    db.ref("prueba").set({
+      estado: "Firebase conectado",
+      fecha: Date.now()
+    }).then(() => {
+      alert("✅ Firebase funciona correctamente");
+    });
+  }
 </script>
 
 </body>
