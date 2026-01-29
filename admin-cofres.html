@@ -74,74 +74,74 @@
 </div>
 
 <script>
-    const PASSWORD_ADMIN = "FSL9899199123"; // 🔴 CAMBIA ESTO
+    <script>
+const PASSWORD_ADMIN = "FSL2025"; // cambia si quieres
 
-    function login() {
-        const pass = document.getElementById("password").value;
-        if (pass === PASSWORD_ADMIN) {
-            document.getElementById("login").style.display = "none";
-            document.getElementById("panel").style.display = "block";
-            localStorage.setItem("adminCofres", "true");
-            cargarDatos();
-mostrarCodigos();
-
-        } else {
-            alert("❌ Contraseña incorrecta");
-        }
-    }
-
-    function cerrarSesion() {
-        localStorage.removeItem("adminCofres");
-        location.reload();
-    }
-
-    function cargarDatos() {
-        let historial = JSON.parse(localStorage.getItem("historialCofres")) || [];
-        let tabla = document.getElementById("tabla");
-        tabla.innerHTML = "";
-
-        historial.forEach((item, i) => {
-            tabla.innerHTML += `
-                <tr>
-                    <td>${i + 1}</td>
-                    <td>${item.jugador}</td>
-                    <td>${item.perk}</td>
-                    <td>${item.rareza}</td>
-                    <td>${item.codigo}</td>
-                    <td>${item.fecha}</td>
-                </tr>
-            `;
-        });
-    }
-
-    // Mantener sesión
-    if (localStorage.getItem("adminCofres") === "true") {
+function login() {
+    const pass = document.getElementById("password").value;
+    if (pass === PASSWORD_ADMIN) {
         document.getElementById("login").style.display = "none";
         document.getElementById("panel").style.display = "block";
+        localStorage.setItem("adminCofres", "true");
         cargarDatos();
-        function generarCodigo() {
+        mostrarCodigos(); // 🔴 ESTO ERA LO QUE FALTABA
+    } else {
+        alert("❌ Contraseña incorrecta");
+    }
+}
+
+function cerrarSesion() {
+    localStorage.removeItem("adminCofres");
+    location.reload();
+}
+
+function generarCodigo() {
     let codigos = JSON.parse(localStorage.getItem("codigosValidos")) || [];
 
-    let nuevoCodigo = "FSL-" + Math.random().toString(36).substring(2, 7).toUpperCase();
+    let nuevoCodigo = "FSL-" + Math.random().toString(36).substr(2, 6).toUpperCase();
 
     codigos.push(nuevoCodigo);
     localStorage.setItem("codigosValidos", JSON.stringify(codigos));
 
-    mostrarCodigos();
+    mostrarCodigos(); // 🔴 refresca la lista
 }
 
 function mostrarCodigos() {
     let codigos = JSON.parse(localStorage.getItem("codigosValidos")) || [];
     let lista = document.getElementById("listaCodigos");
-    lista.innerHTML = "";
 
+    if (!lista) return;
+
+    lista.innerHTML = "";
     codigos.forEach(codigo => {
         lista.innerHTML += `<li>${codigo}</li>`;
     });
 }
 
-    }
-</script>
+function cargarDatos() {
+    let historial = JSON.parse(localStorage.getItem("historialCofres")) || [];
+    let tabla = document.getElementById("tabla");
+    tabla.innerHTML = "";
 
-</body>
-</html>
+    historial.forEach((item, i) => {
+        tabla.innerHTML += `
+            <tr>
+                <td>${i + 1}</td>
+                <td>${item.jugador}</td>
+                <td>${item.perk}</td>
+                <td>${item.rareza}</td>
+                <td>${item.codigo}</td>
+                <td>${item.fecha}</td>
+            </tr>
+        `;
+    });
+}
+
+// Mantener sesión iniciada
+if (localStorage.getItem("adminCofres") === "true") {
+    document.getElementById("login").style.display = "none";
+    document.getElementById("panel").style.display = "block";
+    cargarDatos();
+    mostrarCodigos(); // 🔴 ESTO ES CLAVE
+}
+</script>
