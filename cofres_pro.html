@@ -2,58 +2,51 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Prueba Firebase</title>
+  <title>Cofres Pro</title>
 </head>
 
 <body>
 
-  <h1>🔥 Prueba Firebase</h1>
-    <button onclick="probarFirebase()">Probar Firebase</button>
-  <button onclick="probarFirebase()">Probar conexión</button>
+  <h2>Prueba Firebase</h2>
 
-  <<script type="module">
-  // 1. Importar Firebase desde CDN
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+  <button id="btnFirebase">Probar Firebase</button>
+  <button id="btnConexion">Probar Conexión</button>
 
-  // 2. Configuración de Firebase (LA TUYA)
-  const firebaseConfig = {
-    apiKey: "AIzaSyAzqFQflwICESu5CtVuVh8r54coZmTp5UM",
-    authDomain: "thefinalstrike-4358b.firebaseapp.com",
-    databaseURL: "https://thefinalstrike-4358b-default-rtdb.firebaseio.com",
-    projectId: "thefinalstrike-4358b",
-    storageBucket: "thefinalstrike-4358b.appspot.com",
-    messagingSenderId: "857358899579",
-    appId: "1:857358899579:web:a56cd2f0f75df09eecc5de"
-  };
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-  // 3. Inicializar Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+    const firebaseConfig = {
+      apiKey: "AIzaSyAzqFQflwICESu5CtVuVh8r54coZmTp5UM",
+      authDomain: "thefinalstrike-4358b.firebaseapp.com",
+      databaseURL: "https://thefinalstrike-4358b-default-rtdb.firebaseio.com",
+      projectId: "thefinalstrike-4358b",
+      storageBucket: "thefinalstrike-4358b.appspot.com",
+      messagingSenderId: "857358899579",
+      appId: "1:857358899579:web:a56cd2f0f75df09eecc5de"
+    };
 
-  console.log("🔥 Firebase inicializado correctamente");
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-  // 4. Botón probar Firebase
-  document.getElementById("btnFirebase").addEventListener("click", () => {
-    alert("Firebase está cargado correctamente ✅");
-  });
+    console.log("🔥 Firebase inicializado");
 
-  // 5. Botón probar conexión a la DB
-  document.getElementById("btnConexion").addEventListener("click", () => {
-    set(ref(db, "prueba"), {
-      estado: "conectado",
-      fecha: Date.now()
-    })
-    .then(() => {
-      alert("Conectado a Firebase Database ✅");
-    })
-    .catch((error) => {
-      console.error(error);
-      alert("Error de conexión ❌");
+    document.getElementById("btnFirebase").addEventListener("click", () => {
+      alert("Firebase cargado correctamente ✅");
     });
-  });
-</script>
 
+    document.getElementById("btnConexion").addEventListener("click", () => {
+      set(ref(db, "prueba"), {
+        estado: "ok",
+        fecha: Date.now()
+      })
+      .then(() => alert("Conexión exitosa ✅"))
+      .catch(e => {
+        console.error(e);
+        alert("Error ❌");
+      });
+    });
+  </script>
 
 </body>
 </html>
