@@ -5,79 +5,47 @@
   <title>Final Strike League</title>
   <style>
     body {
-      background: #0b0b0b;
+      background: #0f0f0f;
       color: white;
       font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-
-    .menu {
-      background: #141414;
-      padding: 40px;
-      border-radius: 15px;
       text-align: center;
-      width: 320px;
-      box-shadow: 0 0 20px rgba(255,215,0,0.3);
+      padding-top: 80px;
     }
 
-    h1 {
-      margin-bottom: 30px;
-      color: gold;
-    }
-
-    button {
-      width: 100%;
+    .btn {
+      display: block;
+      width: 260px;
+      margin: 20px auto;
       padding: 15px;
-      margin: 10px 0;
-      font-size: 16px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .cofres {
-      background: gold;
-      color: black;
-    }
-
-    .votaciones {
-      background: #444;
+      background: #1f1f1f;
       color: white;
+      text-decoration: none;
+      font-size: 18px;
+      border-radius: 10px;
+      transition: 0.2s;
     }
 
-    .votaciones:hover {
-      background: #666;
-    }
-
-    .cofres:hover {
-      background: #ffcc00;
+    .btn:hover {
+      background: #333;
     }
   </style>
 </head>
 <body>
 
-  <div class="menu">
-    <h1>🏆 Final Strike League</h1>
+  <h1>Final Strike League</h1>
 
-    <button class="cofres" onclick="irACofres()">
-      🎁 Abrir Cofres
-    </button>
+  <!-- ABRIR COFRES -->
+  <a class="btn" href="cofres_pro.html">
+    🎁 Abrir cofres
+  </a>
 
-    <button class="votaciones" onclick="comingSoon()">
-      🗳 Votaciones (Coming Soon)
-    </button>
-  </div>
+  <!-- VOTACIONES -->
+  <a class="btn" href="javascript:void(0)" onclick="alert('Coming soon')">
+    🏆 Votaciones
+  </a>
 
-  <script>
-    function irACofres() {
-     <button onclick="window.location.href='cofres_pro.html'">
-  Abrir cofres
-</button>
+</body>
+</html>
 
     }
 
