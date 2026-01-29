@@ -45,6 +45,15 @@
 
 <!-- PANEL -->
 <div id="panel" class="hidden">
+    
+<h2>🔑 Generador de Códigos</h2>
+
+<button onclick="generarCodigo()">➕ Generar nuevo código</button>
+
+<p><strong>Códigos disponibles:</strong></p>
+<ul id="listaCodigos"></ul>
+
+<hr>
 
     <button onclick="cargarDatos()">🔄 Actualizar</button>
     <button onclick="cerrarSesion()">🚪 Cerrar sesión</button>
@@ -74,6 +83,8 @@
             document.getElementById("panel").style.display = "block";
             localStorage.setItem("adminCofres", "true");
             cargarDatos();
+mostrarCodigos();
+
         } else {
             alert("❌ Contraseña incorrecta");
         }
@@ -108,6 +119,27 @@
         document.getElementById("login").style.display = "none";
         document.getElementById("panel").style.display = "block";
         cargarDatos();
+        function generarCodigo() {
+    let codigos = JSON.parse(localStorage.getItem("codigosValidos")) || [];
+
+    let nuevoCodigo = "FSL-" + Math.random().toString(36).substring(2, 7).toUpperCase();
+
+    codigos.push(nuevoCodigo);
+    localStorage.setItem("codigosValidos", JSON.stringify(codigos));
+
+    mostrarCodigos();
+}
+
+function mostrarCodigos() {
+    let codigos = JSON.parse(localStorage.getItem("codigosValidos")) || [];
+    let lista = document.getElementById("listaCodigos");
+    lista.innerHTML = "";
+
+    codigos.forEach(codigo => {
+        lista.innerHTML += `<li>${codigo}</li>`;
+    });
+}
+
     }
 </script>
 
