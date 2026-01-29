@@ -34,6 +34,9 @@
 
 <h1>🎁 Cofres – Final Strike League</h1> 
 <p>Haz clic en el cofre para abrirlo</p>
+    <h3>👤 Nombre del jugador</h3>
+<input type="text" id="nombreJugador" placeholder="Tu nombre aquí">
+
 <h3>🔑 Ingresa tu código de cofre</h3>
 <input type="text" id="codigoInput" placeholder="Código aquí">
 
@@ -82,10 +85,16 @@
     ];
 
     function abrirCofre() {
+    let nombre = document.getElementById("nombreJugador").value.trim();
     let codigo = document.getElementById("codigoInput").value.trim();
 
+    if (nombre === "") {
+        alert("❌ Ingresa tu nombre");
+        return;
+    }
+
     if (codigo === "") {
-        alert("❌ Ingresa un código primero");
+        alert("❌ Ingresa un código");
         return;
     }
 
@@ -93,6 +102,7 @@
         alert("❌ Código inválido o ya usado");
         return;
     }
+
 
     // Marcar código como usado
     codigosValidos = codigosValidos.filter(c => c !== codigo);
@@ -135,12 +145,14 @@
 
     // Guardar historial
     let historial = JSON.parse(localStorage.getItem("historialCofres")) || [];
-    historial.push({
-        codigo: codigo,
-        perk: resultado,
-        rareza: rareza,
-        fecha: new Date().toLocaleString()
-    });
+   historial.push({
+    jugador: nombre,
+    codigo: codigo,
+    perk: resultado,
+    rareza: rareza,
+    fecha: new Date().toLocaleString()
+});
+
 
     localStorage.setItem("historialCofres", JSON.stringify(historial));
 }
