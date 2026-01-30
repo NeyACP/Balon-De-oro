@@ -4,146 +4,261 @@
 <meta charset="UTF-8">
 <title>Cofres – Final Strike League</title>
 <style>
-body {background:#0f0f0f;color:white;font-family:Arial;text-align:center;}
-input, button {padding:10px;margin:5px;}
+  body {
+    background:#0b0b0b;
+    font-family: 'Arial', sans-serif;
+    color:white;
+    text-align:center;
+    overflow-x:hidden;
+  }
 
-/* Ruleta vertical */
-#ruleta-container {width:200px;height:120px;overflow:hidden;margin:20px auto;border:3px solid #0ff;border-radius:10px;background:#111;position:relative;}
-#ruleta {display:flex;flex-direction:column;transition: transform 4s cubic-bezier(0.33,1,0.68,1);}
-.casilla {height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;color:white;text-shadow:0 0 10px #0ff;}
-.casilla img{height:80px;margin-bottom:5px;}
+  h1 {
+    text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+  }
 
-/* Barra de piedad */
-#barra-piedad {width:200px;height:20px;border:2px solid #0ff;border-radius:10px;margin:10px auto;position:relative;background:#222;}
-#barra-llenado {width:0%;height:100%;background:linear-gradient(90deg,#0ff,#00f);border-radius:10px;}
-#contador-piedad {position:absolute;width:100%;text-align:center;top:0;color:#0ff;font-weight:bold;}
+  #slot-container {
+    margin: 20px auto;
+    width: 200px;
+    height: 300px;
+    overflow: hidden;
+    border: 3px solid #0ff;
+    border-radius: 10px;
+    position: relative;
+    background: #111;
+    box-shadow: 0 0 20px #0ff;
+  }
 
-#resultado {margin-top:20px;font-size:18px;}
+  .slot {
+    position: absolute;
+    top:0;
+    width:100%;
+  }
+
+  .casilla {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    height:100px;
+    font-weight:bold;
+    font-size:16px;
+    border-bottom:1px solid #222;
+    color:white;
+    text-shadow: 0 0 5px #0ff;
+  }
+
+  .casilla.bronze { background:#4b3a2a; }
+  .casilla.rara { background:#0055ff; text-shadow:0 0 10px #0ff; }
+  .casilla.legendaria { background:#ffd700; text-shadow:0 0 15px #ff0; }
+
+  .casilla img {
+    width:60px;
+    height:60px;
+    margin-bottom:5px;
+  }
+
+  #resultado {
+    margin-top:20px;
+    font-size:18px;
+    text-shadow:0 0 10px #0ff;
+  }
+
+  #piedad-bar {
+    margin: 20px auto;
+    width: 220px;
+    height: 25px;
+    border:2px solid #0ff;
+    border-radius:10px;
+    overflow:hidden;
+    background:#111;
+    box-shadow:0 0 10px #0ff inset;
+    position:relative;
+  }
+
+  #piedad-fill {
+    height:100%;
+    width:0%;
+    background: linear-gradient(90deg,#0ff,#00f,#0ff);
+    animation: glow 2s infinite alternate;
+    transition: width 0.5s;
+  }
+
+  #piedad-text {
+    position:absolute;
+    width:100%;
+    text-align:center;
+    top:0;
+    line-height:25px;
+    font-weight:bold;
+    color:white;
+    text-shadow:0 0 5px #0ff;
+  }
+
+  @keyframes glow {
+    0%{ box-shadow:0 0 10px #0ff; }
+    100%{ box-shadow:0 0 20px #0ff; }
+  }
+
+  button {
+    padding:10px 20px;
+    margin-top:10px;
+    background:#0ff;
+    color:#000;
+    border:none;
+    font-weight:bold;
+    border-radius:5px;
+    cursor:pointer;
+    text-shadow:0 0 3px #0ff;
+    box-shadow: 0 0 10px #0ff;
+    transition:0.3s;
+  }
+
+  button:hover {
+    box-shadow:0 0 20px #0ff;
+    transform: scale(1.05);
+  }
 </style>
 </head>
 <body>
 
 <h1>🎁 Cofres – Final Strike League</h1>
+
 <input id="nombreJugador" placeholder="Nombre del jugador"><br>
 <input id="codigoInput" placeholder="Código del cofre"><br>
 <button id="btnAbrir">Abrir Cofre</button>
 
-<div id="ruleta-container">
-  <div id="ruleta"></div>
-</div>
-
-<div id="barra-piedad">
-  <div id="barra-llenado"></div>
-  <span id="contador-piedad">0/20</span>
+<div id="slot-container">
+  <div id="slot" class="slot"></div>
 </div>
 
 <div id="resultado"></div>
+
+<div id="piedad-bar">
+  <div id="piedad-fill"></div>
+  <div id="piedad-text">0 / 20</div>
+</div>
+
+<audio id="sonidoGiro" src="audio/giro.mp3"></audio>
+<audio id="sonidoPremio" src="audio/premio.mp3"></audio>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, push, get, child, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-/* Config Firebase */
+/* Firebase Config */
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_AUTH_DOMAIN",
-  databaseURL: "TU_DATABASE_URL",
-  projectId: "TU_PROJECT_ID",
-  storageBucket: "TU_STORAGE_BUCKET",
-  messagingSenderId: "TU_MSG_ID",
-  appId: "TU_APP_ID"
+  apiKey: "AIzaSyAzqFQflwICESu5CtVuVh8r54coZmTp5UM",
+  authDomain: "thefinalstrike-4358b.firebaseapp.com",
+  databaseURL: "https://thefinalstrike-4358b-default-rtdb.firebaseio.com",
+  projectId: "thefinalstrike-4358b",
+  storageBucket: "thefinalstrike-4358b.firebasestorage.app",
+  messagingSenderId: "857358899579",
+  appId: "1:857358899579:web:a56cd2f0f75df09eecc5de"
 };
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* Variables */
-const ruleta = document.getElementById("ruleta");
-const barra = document.getElementById("barra-llenado");
-const contador = document.getElementById("contador-piedad");
-const resultado = document.getElementById("resultado");
-const btnAbrir = document.getElementById("btnAbrir");
-
-let piedad = 0;
-
-/* Lista de perks */
+/* 🎲 Perks */
 const perks = [
-  {id:"perkgagamaru", nombre:"Perk de Gagamaru", rareza:"bronze"},
-  {id:"perkleonrojo", nombre:"Perk del León Rojo", rareza:"bronze"},
-  {id:"perkmonstruo", nombre:"Perk del Monstruo", rareza:"bronze"},
-  {id:"perkhiori", nombre:"Perk Hiori", rareza:"rara"},
-  {id:"perkemperador", nombre:"Perk Emperador", rareza:"legendaria"},
-  {id:"perkegoista", nombre:"Perk del Egoísta", rareza:"legendaria"}
+  {id:"gagamaru", nombre:"Perk de Gagamaru", rareza:"bronze"},
+  {id:"leonrojo", nombre:"Perk del León Rojo", rareza:"bronze"},
+  {id:"monstruo", nombre:"Perk del Monstruo", rareza:"bronze"},
+  {id:"ex-delantero", nombre:"Perk del ex-delantero", rareza:"bronze"},
+  {id:"maestro-adaptabilidad", nombre:"Perk del maestro de la adaptabilidad", rareza:"bronze"},
+  {id:"no-voy-a-perder", nombre:"Perk de No voy a perder", rareza:"bronze"},
+  {id:"hiori", nombre:"Perk Hiori", rareza:"rara"},
+  {id:"emperador", nombre:"Perk Emperador", rareza:"legendaria"},
+  {id:"egoista", nombre:"Perk del Egoísta", rareza:"legendaria"},
+  {id:"genio-total", nombre:"Perk del genio total", rareza:"legendaria"}
 ];
 
-/* Función elegir perk con piedad */
-function elegirPerk(){
-  if(piedad >= 19){ // cada 20 aperturas
-    return perks.find(p=>p.rareza==="legendaria");
-  }
-  const r = Math.random()*100;
-  if(r<5) return perks.find(p=>p.rareza==="legendaria");
-  if(r<30) return perks.find(p=>p.rareza==="rara");
-  return perks.find(p=>p.rareza==="bronze");
+/* Slots con probabilidades */
+function crearPool() {
+  let pool = [];
+  perks.forEach(p=>{
+    if(p.rareza==="bronze") for(let i=0;i<60;i++) pool.push(p);
+    else if(p.rareza==="rara") for(let i=0;i<25;i++) pool.push(p);
+    else if(p.rareza==="legendaria") for(let i=0;i<5;i++) pool.push(p);
+  });
+  return pool;
 }
 
-/* Función girar ruleta */
-function girarRuleta(perkSeleccionado){
-  ruleta.innerHTML = "";
-  const total = 20;
-  for(let i=0;i<total;i++){
-    const p = perks[Math.floor(Math.random()*perks.length)];
-    const div = document.createElement("div");
-    div.className="casilla "+p.rareza;
-    div.innerHTML=`<img src="img/perks/${p.id}.png"/><span>${p.nombre}</span>`;
-    ruleta.appendChild(div);
-  }
-  // Casilla ganadora al final
-  const ganador = document.createElement("div");
-  ganador.className="casilla "+perkSeleccionado.rareza;
-  ganador.innerHTML=`<img src="img/perks/${perkSeleccionado.id}.png"/><span>${perkSeleccionado.nombre}</span>`;
-  ruleta.appendChild(ganador);
+/* Piedad */
+let giros = 0;
 
-  // Reiniciar transform
-  ruleta.style.transition="none";
-  ruleta.style.transform="translateY(0px)";
-  ruleta.offsetHeight; // fuerza reflow
-  const alturaTotal = 120*(total+1);
-  ruleta.style.transition="transform 4s cubic-bezier(0.33,1,0.68,1)";
-  ruleta.style.transform=`translateY(-${alturaTotal}px)`;
-}
-
-/* Botón abrir */
-btnAbrir.addEventListener("click", async ()=>{
+/* Abrir Cofre */
+document.getElementById("btnAbrir").addEventListener("click", async ()=>{
   const nombre = document.getElementById("nombreJugador").value.trim();
   const codigo = document.getElementById("codigoInput").value.trim();
-
-  if(!nombre || !codigo){alert("Completa nombre y código"); return;}
+  if(!nombre||!codigo){ alert("Completa nombre y código"); return; }
 
   const snap = await get(child(ref(db),"codigos/"+codigo));
-  if(!snap.exists()){alert("Código inválido o usado"); return;}
+  if(!snap.exists()){ alert("Código inválido o usado"); return; }
 
-  const perkSeleccionado = elegirPerk();
-  girarRuleta(perkSeleccionado);
+  // Crear pool y elegir perk
+  let pool = crearPool();
+  let perkSeleccionado = pool[Math.floor(Math.random()*pool.length)];
 
-  // Actualizar piedad
-  piedad=(piedad+1)%20;
-  barra.style.width=(piedad/20*100)+"%";
-  contador.innerText=`${piedad}/20`;
+  // Piedad: si giros % 20 === 0, legendaria garantizada
+  giros++;
+  if(giros%20===0){
+    const legendarias = perks.filter(p=>p.rareza==="legendaria");
+    perkSeleccionado = legendarias[Math.floor(Math.random()*legendarias.length)];
+  }
 
-  // Guardar apertura y eliminar código en Firebase
-  await push(ref(db,"aperturas"),{
-    jugador:nombre,
-    codigo:codigo,
-    perk:perkSeleccionado.nombre,
-    rareza:perkSeleccionado.rareza,
-    fecha:new Date().toLocaleString()
-  });
-  await remove(ref(db,"codigos/"+codigo));
+  // Crear slots visibles
+  const slot = document.getElementById("slot");
+  slot.innerHTML="";
+  let totalCasillas = 30;
+  for(let i=0;i<totalCasillas;i++){
+    let p = pool[Math.floor(Math.random()*pool.length)];
+    let div = document.createElement("div");
+    div.className="casilla "+p.rareza;
+    div.innerHTML=`<img src="img/perks/${p.id}.png"/><span>${p.nombre}</span>`;
+    slot.appendChild(div);
+  }
 
-  setTimeout(()=>{
-    resultado.innerHTML=`<b>${perkSeleccionado.nombre}</b><br>${perkSeleccionado.rareza.toUpperCase()}<br>Código usado: ${codigo}`;
+  // Agregar perk ganador al final para que caiga
+  let ganador = document.createElement("div");
+  ganador.className="casilla "+perkSeleccionado.rareza;
+  ganador.innerHTML=`<img src="img/perks/${perkSeleccionado.id}.png"/><span>${perkSeleccionado.nombre}</span>`;
+  slot.appendChild(ganador);
+
+  // Animación vertical
+  slot.style.transition="transform 4s cubic-bezier(0.25,1,0.5,1)";
+  slot.style.transform=`translateY(-${100*(totalCasillas)}px)`;
+
+  // Música
+  const sonidoGiro = document.getElementById("sonidoGiro");
+  const sonidoPremio = document.getElementById("sonidoPremio");
+  sonidoGiro.currentTime=0; sonidoGiro.play();
+
+  setTimeout(async ()=>{
+    sonidoGiro.pause();
+    sonidoPremio.currentTime=0; sonidoPremio.play();
+
+    // Guardar apertura en Firebase
+    await push(ref(db,"aperturas"),{
+      jugador:nombre,
+      codigo,
+      perk:perkSeleccionado.nombre,
+      rareza:perkSeleccionado.rareza.toUpperCase(),
+      fecha:new Date().toLocaleString()
+    });
+
+    await remove(ref(db,"codigos/"+codigo));
+
+    document.getElementById("resultado").innerHTML=`<b>${perkSeleccionado.nombre}</b><br>${perkSeleccionado.rareza.toUpperCase()}<br>Código usado: ${codigo}`;
+
+    // Actualizar barra de piedad
+    const fill = document.getElementById("piedad-fill");
+    const text = document.getElementById("piedad-text");
+    let porcentaje = (giros%20)*5; // 20 giros → 100%
+    fill.style.width=porcentaje+"%";
+    text.innerText=`${giros%20} / 20 (${porcentaje}%)`;
   },4000);
 });
 </script>
+
 </body>
 </html>
