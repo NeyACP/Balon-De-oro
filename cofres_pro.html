@@ -2,43 +2,111 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Cofres – Final Strike League</title>
-
+<title>🎁 Cofres Interactivos – Final Strike League</title>
 <style>
 body {
-  background:#0f0f0f;
+  margin:0; padding:0;
+  background: linear-gradient(45deg,#0f0f0f,#1a1a1a);
+  font-family: Arial;
+  color: white;
+  text-align: center;
+  overflow-x: hidden;
+}
+
+#fondo {
+  position: fixed;
+  top:0; left:0; width:100%; height:100%;
+  background: url('img/fondo.jpg') no-repeat center center/cover;
+  z-index:-1;
+}
+
+h1 { margin-top:20px; }
+
+input, button { padding:10px; margin:5px; font-size:16px; }
+
+#ruedaContainer {
+  position: relative;
+  width: 300px; height: 300px;
+  margin: 20px auto;
+  border-radius:50%;
+  overflow:hidden;
+  border:5px solid gold;
+}
+
+#rueda {
+  width:100%; height:100%;
+  transform: rotate(0deg);
+  transition: transform 4s cubic-bezier(0.25,1,0.5,1);
+}
+
+.sector {
+  position:absolute;
+  width:50%; height:50%;
+  top:50%; left:50%;
+  transform-origin: 0% 0%;
+  text-align:left;
+  padding-left:10px;
+  font-size:14px;
   color:white;
-  font-family:Arial;
-  text-align:center;
+  font-weight:bold;
 }
-input, button {
-  padding:10px;
-  margin:5px;
+
+#flecha {
+  position:absolute;
+  top:-20px; left:50%; transform:translateX(-50%);
+  width:0; height:0;
+  border-left:15px solid transparent;
+  border-right:15px solid transparent;
+  border-bottom:30px solid red;
+  z-index:10;
 }
-.resultado {
+
+#resultado {
   margin-top:20px;
   font-size:18px;
 }
+
+#piedadBarContainer {
+  width:80%; height:20px;
+  background:#444; margin:20px auto; border-radius:10px;
+}
+
+#piedadBar {
+  height:100%; width:0%;
+  background: gold;
+  border-radius:10px;
+  transition: width 0.5s ease;
+}
 </style>
 </head>
-
 <body>
+<div id="fondo"></div>
 
 <h1>🎁 Cofres – Final Strike League</h1>
 
 <input id="nombreJugador" placeholder="Nombre del jugador"><br>
 <input id="codigoInput" placeholder="Código del cofre"><br>
+<button id="btnAbrir">Abrir Cofre</button>
 
-<button type="button" id="btnAbrir">Abrir Cofre</button>
+<div id="ruedaContainer">
+  <div id="rueda"></div>
+  <div id="flecha"></div>
+</div>
 
-<div class="resultado" id="resultado"></div>
+<div id="piedadBarContainer">
+  <div id="piedadBar"></div>
+</div>
 
-<!-- ================= ABRIR COFRE CON PIEDAD ================= -->
+<div id="resultado"></div>
+
+<audio id="sonidoGiro" src="audio/giro.mp3"></audio>
+<audio id="sonidoPremio" src="audio/premio.mp3"></audio>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, push, get, child, remove, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-/* 🔥 CONFIG FIREBASE */
+/* 🔥 Firebase Config */
 const firebaseConfig = {
   apiKey: "AIzaSyAzqFQflwICESu5CtVuVh8r54coZmTp5UM",
   authDomain: "thefinalstrike-4358b.firebaseapp.com",
@@ -52,78 +120,101 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* 🎲 PERKS */
-const bronze = ["Perk de Gagamaru","Perk del León Rojo","Perk del Monstruo","Perk del ex-delantero","Perk del maestro de la adaptabilidad","Perk de No voy a perder"];
+/* 🎲 Perks */
+const bronze = ["Perk de Gagamaru","Perk del León Rojo","Perk del Monstruo","Perk del ex-delantero","perk del maestro de la adpatacion","Perk de no voy a perder de nuevo"];
 const rara = ["Perk Hiori"];
-const legendaria = ["Perk Emperador","Perk del Egoísta","Perk del genio total"];
+const legendaria = ["Perk del Emperador","Perk del Egoísta","Perk del genio total"];
 
-/* 🎁 ABRIR COFRE */
-document.getElementById("btnAbrir").addEventListener("click", async () => {
-  const nombre = nombreJugador.value.trim();
-  const codigo = codigoInput.value.trim();
+/* 🌈 Colores por rareza */
+const colores = { bronze:"#a0522d", rara:"#1e90ff", legendaria:"#ffd700" };
 
-  if (!nombre || !codigo) {
-    alert("Completa nombre y código");
-    return;
-  }
+/* Rueda: crear sectores visuales */
+const rueda = document.getElementById("rueda");
+const perks = [...bronze, ...rara, ...legendaria];
+const total = perks.length;
+perks.forEach((perk,i)=>{
+  const div = document.createElement("div");
+  div.className="sector";
+  div.style.transform = `rotate(${(360/total)*i}deg)`;
+  if(bronze.includes(perk)) div.style.background=colores.bronze;
+  else if(rara.includes(perk)) div.style.background=colores.rara;
+  else div.style.background=colores.legendaria;
+  div.textContent=perk;
+  rueda.appendChild(div);
+});
+
+const flecha = document.getElementById("flecha");
+const resultadoDiv = document.getElementById("resultado");
+const piedadBar = document.getElementById("piedadBar");
+const sonidoGiro = document.getElementById("sonidoGiro");
+const sonidoPremio = document.getElementById("sonidoPremio");
+
+document.getElementById("btnAbrir").addEventListener("click", async ()=>{
+  const nombre = document.getElementById("nombreJugador").value.trim();
+  const codigo = document.getElementById("codigoInput").value.trim();
+  if(!nombre || !codigo){ alert("Completa nombre y código"); return; }
 
   // Verificar código
-  const snap = await get(child(ref(db), "codigos/" + codigo));
-  if (!snap.exists()) {
-    alert("Código inválido o usado");
-    return;
-  }
+  const snap = await get(child(ref(db), "codigos/"+codigo));
+  if(!snap.exists()){ alert("Código inválido o usado"); return; }
 
   // Leer contador del jugador
-  const contadorSnap = await get(child(ref(db), "conteos/" + nombre));
-  let contador = contadorSnap.exists() ? contadorSnap.val() : 0;
+  const contadorSnap = await get(child(ref(db), "conteos/"+nombre));
+  let contador = contadorSnap.exists()?contadorSnap.val():0;
 
-  let perk = "";
-  let rareza = "";
-
-  // SISTEMA DE PIEDAD: cada 20 cofres → legendario garantizado
-  if ((contador + 1) % 20 === 0) {
+  // Determinar perk y rareza
+  let perk="", rareza="";
+  let isPiedad = false;
+  if((contador+1)%20===0){
     perk = legendaria[Math.floor(Math.random()*legendaria.length)];
     rareza = "LEGENDARIA 👑 (PIEDAD)";
-  } else {
-    const r = Math.random() * 100;
-    if (r < 5) {
-      perk = legendaria[Math.floor(Math.random()*legendaria.length)];
-      rareza = "LEGENDARIA 👑";
-    } else if (r < 30) {
-      perk = rara[0];
-      rareza = "RARA 💎";
-    } else {
-      perk = bronze[Math.floor(Math.random()*bronze.length)];
-      rareza = "BRONZE 🟤";
-    }
+    isPiedad = true;
+  }else{
+    const r = Math.random()*100;
+    if(r<5){ perk = legendaria[Math.floor(Math.random()*legendaria.length)]; rareza="LEGENDARIA 👑"; }
+    else if(r<30){ perk=rara[0]; rareza="RARA 💎"; }
+    else{ perk=bronze[Math.floor(Math.random()*bronze.length)]; rareza="BRONZE 🟤"; }
   }
 
   // Guardar apertura
-  await push(ref(db, "aperturas"), {
-    jugador: nombre,
+  await push(ref(db,"aperturas"),{
+    jugador:nombre,
     codigo,
     perk,
     rareza,
-    fecha: new Date().toLocaleString()
+    fecha:new Date().toLocaleString()
   });
 
-  // Incrementar contador del jugador
-  await set(ref(db, "conteos/" + nombre), contador + 1);
+  // Incrementar contador
+  await set(ref(db,"conteos/"+nombre),contador+1);
 
   // Eliminar código usado
-  await remove(ref(db, "codigos/" + codigo));
+  await remove(ref(db,"codigos/"+codigo));
 
-  // Mostrar resultado
-  resultado.innerHTML = `
-    <b>${perk}</b><br>
-    ${rareza}<br>
-    Código usado: ${codigo}<br>
-    Cofres abiertos: ${contador + 1}
-  `;
+  // Actualizar barra de piedad
+  const progreso = ((contador+1)%20)/20*100;
+  piedadBar.style.width = progreso+"%";
+
+  // Animación de rueda
+  const sectorIndex = perks.indexOf(perk);
+  const randomVueltas = 5; // vueltas completas
+  const anguloPorSector = 360/total;
+  const targetDeg = 360*randomVueltas - (sectorIndex*anguloPorSector + anguloPorSector/2);
+  sonidoGiro.currentTime=0; sonidoGiro.play();
+  rueda.style.transition="transform 6s cubic-bezier(0.25,1,0.5,1)";
+  rueda.style.transform=`rotate(${targetDeg}deg)`;
+  
+  // Mostrar resultado al terminar animación
+  setTimeout(()=>{
+    sonidoGiro.pause();
+    sonidoPremio.currentTime=0; sonidoPremio.play();
+    resultadoDiv.innerHTML=`
+      <b>${perk}</b><br>${rareza}<br>
+      Código usado: ${codigo}<br>
+      Cofres abiertos: ${contador+1}${isPiedad?" 🔥 Piedad activada!":""}
+    `;
+  },4000);
 });
 </script>
-
 </body>
 </html>
-
