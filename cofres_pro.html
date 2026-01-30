@@ -181,69 +181,50 @@ document.getElementById("btnAbrir").addEventListener("click", async ()=>{
     perkSeleccionado = legendarias[Math.floor(Math.random()*legendarias.length)];
   }
 
-  const slot=document.getElementById("slot");
-  slot.style.transition="none";
-  slot.style.transform="translateY(0px)";
-  slot.innerHTML="";
+  const slot = document.getElementById("slot");
+slot.innerHTML = "";
 
-  // Slots intermedios + ganadora
-  let totalCasillas=30;
-  for(let i=0;i<totalCasillas;i++){
+// Crear casillas
+let totalCasillas = 30;
+for(let i=0; i<totalCasillas; i++){
     const p = pool[Math.floor(Math.random()*pool.length)];
-    const div=document.createElement("div");
-    div.className="casilla "+p.rareza;
-    div.innerHTML=`<img src="img/perks/${p.id}.png"/><span>${p.nombre}</span>`;
+    const div = document.createElement("div");
+    div.className = "casilla " + p.rareza;
+    div.innerHTML = `<img src="img/perks/${p.id}.png" /><span>${p.nombre}</span>`;
     slot.appendChild(div);
-  }
+}
 
-  const ganador=document.createElement("div");
-  ganador.className="casilla "+perkSeleccionado.rareza;
-  ganador.innerHTML=`<img src="img/perks/${perkSeleccionado.id}.png"/><span>${perkSeleccionado.nombre}</span>`;
-  slot.appendChild(ganador);
+// Casilla ganadora
+const ganador = document.createElement("div");
+ganador.className = "casilla " + perkSeleccionado.rareza;
+ganador.innerHTML = `<img src="img/perks/${perkSeleccionado.id}.png" /><span>${perkSeleccionado.nombre}</span>`;
+slot.appendChild(ganador);
 
-  // Reflow
-  void slot.offsetWidth;
+// Forzar reflow antes de animar
+slot.offsetHeight;
 
-  // Música y animación
-  const sonidoGiro=document.getElementById("sonidoGiro");
-  const sonidoPremio=document.getElementById("sonidoPremio");
-  sonidoGiro.currentTime=0; sonidoGiro.play();
+// Animación
+slot.style.transition = "transform 4s cubic-bezier(0.33,1,0.68,1)";
+slot.style.transform = `translateY(-${100*totalCasillas}px)`;
 
-  slot.style.transition="transform 4s cubic-bezier(0.33,1,0.68,1)";
-  slot.style.transform=`translateY(-${100*totalCasillas}px)`;
+// Rebote y guardar apertura
+setTimeout(async ()=>{
+    slot.style.transition = "transform 0.3s ease-out";
+    slot.style.transform = `translateY(-${100*(totalCasillas-0.3)}px)`;
 
-  // Glow dinámico
-  slot.style.boxShadow="0 0 20px #0ff, 0 0 40px #0ff inset";
+    setTimeout(()=> slot.style.transform = `translateY(-${100*totalCasillas}px)`, 300);
 
-  setTimeout(async ()=>{
-    sonidoGiro.pause();
-    sonidoPremio.currentTime=0; sonidoPremio.play();
-
-    // Rebote
-    slot.style.transition="transform 0.3s ease-out";
-    slot.style.transform=`translateY(-${100*(totalCasillas-0.3)}px)`;
-    setTimeout(()=>{ slot.style.transform=`translateY(-${100*totalCasillas}px)`; },300);
-
-    // Guardar apertura
     await push(ref(db,"aperturas"),{
-      jugador:nombre,
-      codigo,
-      perk:perkSeleccionado.nombre,
-      rareza:perkSeleccionado.rareza.toUpperCase(),
-      fecha:new Date().toLocaleString()
+        jugador:nombre,
+        codigo,
+        perk:perkSeleccionado.nombre,
+        rareza:perkSeleccionado.rareza.toUpperCase(),
+        fecha:new Date().toLocaleString()
     });
-    await remove(ref(db,"codigos/"+codigo);
-
-    document.getElementById("resultado").innerHTML=`<b>${perkSeleccionado.nombre}</b><br>${perkSeleccionado.rareza.toUpperCase()}<br>Código usado: ${codigo}`;
-
-    // Barra de piedad
-    const fill=document.getElementById("piedad-fill");
-    const text=document.getElementById("piedad-text");
-    let porcentaje=(giros%20)*5;
-    fill.style.width=porcentaje+"%";
-    text.innerText=`${giros%20} / 20 (${porcentaje}%)`;
-
-  },4000);
+    await remove(ref(db,"codigos/"+codigo));
+    
+    document.getElementById("resultado").innerHTML = `<b>${perkSeleccionado.nombre}</b><br>${perkSeleccionado.rareza.toUpperCase()}<br>Código usado: ${codigo}`;
+}, 4000);
 });
 </script>
 </body>
