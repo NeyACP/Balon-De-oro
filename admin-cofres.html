@@ -1,35 +1,22 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Admin Cofres – Final Strike League</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #0e0e0e;
-            color: white;
-            text-align: center;
-        }
-        input, button {
-            padding: 10px;
-            margin: 5px;
-        }
-        table {
-            margin: auto;
-            border-collapse: collapse;
-            width: 95%;
-        }
-        th, td {
-            border: 1px solid #444;
-            padding: 8px;
-        }
-        th {
-            background: #222;
-        }
-        .hidden {
-            display: none;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Admin Cofres – Final Strike League</title>
+<style>
+body{
+    font-family: Arial;
+    background:#0e0e0e;
+    color:white;
+    text-align:center;
+}
+input,button{padding:10px;margin:5px;}
+table{margin:auto;width:95%;border-collapse:collapse;}
+th,td{border:1px solid #444;padding:8px;}
+th{background:#222;}
+.hidden{display:none;}
+ul{list-style:none;padding:0;}
+</style>
 </head>
 <body>
 
@@ -37,7 +24,7 @@
 
 <!-- LOGIN -->
 <div id="login">
-    <p>🔐 Ingresa contraseña</p>
+    <p>🔐 Contraseña</p>
     <input type="password" id="password">
     <br>
     <button onclick="login()">Entrar</button>
@@ -45,54 +32,58 @@
 
 <!-- PANEL -->
 <div id="panel" class="hidden">
-    <button onclick="cerrarSesion()">🚪 Cerrar sesión</button>
-    <h2>📊 Aperturas registradas</h2>
 
-    <table>
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Jugador</th>
-                <th>Perk</th>
-                <th>Rareza</th>
-                <th>Código</th>
-                <th>Fecha</th>
-            </tr>
-        </thead>
-        <tbody id="tabla"></tbody>
-    </table>
+<h2>🔑 Generador de Códigos</h2>
+<button onclick="generarCodigo()">➕ Generar código</button>
+
+<ul id="listaCodigos"></ul>
+
+<hr>
+
+<button onclick="cerrarSesion()">🚪 Cerrar sesión</button>
+
+<h2>📊 Aperturas</h2>
+<table>
+<thead>
+<tr>
+    <th>#</th>
+    <th>Jugador</th>
+    <th>Perk</th>
+    <th>Rareza</th>
+    <th>Código</th>
+    <th>Fecha</th>
+</tr>
+</thead>
+<tbody id="tabla"></tbody>
+</table>
+
 </div>
 
 <!-- ================= JS NORMAL ================= -->
 <script>
-const PASSWORD_ADMIN = "FSL9899199123"; // 🔴 puedes cambiarla
+const PASSWORD_ADMIN = "FSL9899199123";
 
-function login() {
-    const pass = document.getElementById("password").value;
-    if (pass === PASSWORD_ADMIN) {
-        document.getElementById("login").style.display = "none";
-        document.getElementById("panel").style.display = "block";
-        sessionStorage.setItem("adminAuth", "true");
-    } else {
-        alert("❌ Contraseña incorrecta");
-    }
+function login(){
+    if(document.getElementById("password").value === PASSWORD_ADMIN){
+        loginBox.style.display="none";
+        panel.style.display="block";
+        sessionStorage.setItem("admin","true");
+    } else alert("Contraseña incorrecta");
 }
-
-function cerrarSesion() {
-    sessionStorage.removeItem("adminAuth");
+function cerrarSesion(){
+    sessionStorage.clear();
     location.reload();
 }
-
-if (sessionStorage.getItem("adminAuth") === "true") {
-    document.getElementById("login").style.display = "none";
-    document.getElementById("panel").style.display = "block";
+if(sessionStorage.getItem("admin")==="true"){
+    login.style.display="none";
+    panel.style.display="block";
 }
 </script>
 
 <!-- ================= FIREBASE ================= -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAzqFQflwICESu5CtVuVh8r54coZmTp5UM",
@@ -107,31 +98,47 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-const tabla = document.getElementById("tabla");
-const aperturasRef = ref(db, "aperturas");
+// ===== CÓDIGOS =====
+const codigosRef = ref(db,"codigos");
+const listaCodigos = document.getElementById("listaCodigos");
 
-onValue(aperturasRef, (snapshot) => {
-    tabla.innerHTML = "";
-    let i = 1;
+window.generarCodigo = () => {
+    const codigo = "FSL-" + Math.random().toString(36).substring(2,8).toUpperCase();
+    push(codigosRef,{codigo,usado:false});
+};
 
-    snapshot.forEach(child => {
-        const d = child.val();
-        tabla.innerHTML += `
-            <tr>
-                <td>${i++}</td>
-                <td>${d.jugador}</td>
-                <td>${d.perk}</td>
-                <td>${d.rareza}</td>
-                <td>${d.codigo}</td>
-                <td>${d.fecha}</td>
-            </tr>
-        `;
+onValue(codigosRef,(snap)=>{
+    listaCodigos.innerHTML="";
+    snap.forEach(c=>{
+        if(!c.val().usado){
+            listaCodigos.innerHTML += `<li>🔑 ${c.val().codigo}</li>`;
+        }
     });
 });
 
-console.log("🔥 Admin conectado a Firebase");
+// ===== APERTURAS =====
+const tabla = document.getElementById("tabla");
+const aperturasRef = ref(db,"aperturas");
+
+onValue(aperturasRef,(snap)=>{
+    tabla.innerHTML="";
+    let i=1;
+    snap.forEach(c=>{
+        const d=c.val();
+        tabla.innerHTML+=`
+        <tr>
+            <td>${i++}</td>
+            <td>${d.jugador}</td>
+            <td>${d.perk}</td>
+            <td>${d.rareza}</td>
+            <td>${d.codigo}</td>
+            <td>${d.fecha}</td>
+        </tr>`;
+    });
+});
+
+console.log("🔥 Admin listo");
 </script>
 
 </body>
 </html>
-
