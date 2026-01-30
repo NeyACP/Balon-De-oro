@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <title>Cofres – Final Strike League</title>
 <style>
-/* Estilos ruleta y piedad */
 body{background:#0f0f0f;color:white;font-family:Arial;text-align:center;}
-#ruleta-container{width:200px;height:120px;overflow:hidden;margin:20px auto;border:3px solid #00f0ff;border-radius:10px;background:#111;}
+input, button{padding:10px;margin:5px;}
+#ruleta-container{width:200px;height:120px;overflow:hidden;margin:20px auto;border:3px solid #0ff;border-radius:10px;background:#111;}
 #ruleta{display:flex;flex-direction:column;}
-.casilla{height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;color:#fff;text-shadow:0 0 10px #0ff;transition:transform 0.3s ease-out;}
+.casilla{height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;color:white;text-shadow:0 0 10px #0ff;transition:transform 0.3s ease-out;}
 .casilla img{height:80px;margin-bottom:5px;}
 #barra-piedad{width:200px;height:20px;border:2px solid #0ff;border-radius:10px;margin:10px auto;position:relative;background:#222;}
 #barra-llenado{width:0%;height:100%;background:linear-gradient(90deg,#0ff,#00f);border-radius:10px;}
@@ -35,6 +35,23 @@ body{background:#0f0f0f;color:white;font-family:Arial;text-align:center;}
 <div id="resultado"></div>
 
 <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, push, get, child, remove, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+/* CONFIG FIREBASE */
+const firebaseConfig = {
+  apiKey: "TU_API_KEY",
+  authDomain: "TU_AUTH_DOMAIN",
+  databaseURL: "TU_DATABASE_URL",
+  projectId: "TU_PROJECT_ID",
+  storageBucket: "TU_STORAGE_BUCKET",
+  messagingSenderId: "TU_MSG_ID",
+  appId: "TU_APP_ID"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+/* VARIABLES */
 const ruleta = document.getElementById("ruleta");
 const barra = document.getElementById("barra-llenado");
 const contador = document.getElementById("contador-piedad");
@@ -52,8 +69,9 @@ const perks = [
   {id:"perkegoista", nombre:"Perk del Egoísta", rareza:"legendaria"}
 ];
 
-function elegirPerk() {
-  if(piedad >= 19){
+/* FUNCION ELEGIR PERK CON PIEDAD */
+function elegirPerk(){
+  if(piedad >= 19){ // cada 20 aperturas
     return perks.find(p=>p.rareza==="legendaria");
   }
   const r = Math.random()*100;
@@ -62,40 +80,55 @@ function elegirPerk() {
   return perks.find(p=>p.rareza==="bronze");
 }
 
-btnAbrir.addEventListener("click", ()=> {
+/* BOTON ABRIR */
+btnAbrir.addEventListener("click", async ()=>{
   const nombre = document.getElementById("nombreJugador").value.trim();
   const codigo = document.getElementById("codigoInput").value.trim();
+
   if(!nombre || !codigo){alert("Completa nombre y código"); return;}
+
+  const snap = await get(child(ref(db),"codigos/"+codigo));
+  if(!snap.exists()){alert("Código inválido o usado"); return;}
 
   const perkSeleccionado = elegirPerk();
 
+  // Construir ruleta con perks aleatorios y al final el seleccionado
   ruleta.innerHTML = "";
   const total = 20;
   for(let i=0;i<total;i++){
     const p = perks[Math.floor(Math.random()*perks.length)];
     const div = document.createElement("div");
-    div.className = "casilla " + p.rareza;
-    div.innerHTML = `<img src="img/perks/${p.id}.png"/><span>${p.nombre}</span>`;
+    div.className="casilla "+p.rareza;
+    div.innerHTML=`<img src="img/perks/${p.id}.png"/><span>${p.nombre}</span>`;
     ruleta.appendChild(div);
   }
-
   const ganador = document.createElement("div");
-  ganador.className = "casilla " + perkSeleccionado.rareza;
-  ganador.innerHTML = `<img src="img/perks/${perkSeleccionado.id}.png"/><span>${perkSeleccionado.nombre}</span>`;
+  ganador.className="casilla "+perkSeleccionado.rareza;
+  ganador.innerHTML=`<img src="img/perks/${perkSeleccionado.id}.png"/><span>${perkSeleccionado.nombre}</span>`;
   ruleta.appendChild(ganador);
 
   ruleta.offsetHeight; // fuerza reflow
-
   const alturaTotal = 120*(total+1);
-  ruleta.style.transition = "transform 4s cubic-bezier(0.33,1,0.68,1)";
-  ruleta.style.transform = `translateY(-${alturaTotal}px)`;
+  ruleta.style.transition="transform 4s cubic-bezier(0.33,1,0.68,1)";
+  ruleta.style.transform=`translateY(-${alturaTotal}px)`;
 
-  piedad = (piedad+1)%20;
-  barra.style.width = (piedad/20*100)+"%";
-  contador.innerText = `${piedad}/20`;
+  // Actualizar piedad
+  piedad=(piedad+1)%20;
+  barra.style.width=(piedad/20*100)+"%";
+  contador.innerText=`${piedad}/20`;
+
+  // Guardar apertura en Firebase y eliminar código
+  await push(ref(db,"aperturas"),{
+    jugador:nombre,
+    codigo:codigo,
+    perk:perkSeleccionado.nombre,
+    rareza:perkSeleccionado.rareza,
+    fecha:new Date().toLocaleString()
+  });
+  await remove(ref(db,"codigos/"+codigo));
 
   setTimeout(()=>{
-    resultado.innerHTML = `<b>${perkSeleccionado.nombre}</b><br>${perkSeleccionado.rareza.toUpperCase()}<br>Código usado: ${codigo}`;
+    resultado.innerHTML=`<b>${perkSeleccionado.nombre}</b><br>${perkSeleccionado.rareza.toUpperCase()}<br>Código usado: ${codigo}`;
   },4000);
 });
 </script>
