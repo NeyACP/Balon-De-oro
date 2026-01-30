@@ -33,10 +33,10 @@ input, button {
 
 <div class="resultado" id="resultado"></div>
 
-<!-- ================= FIREBASE + LÓGICA ================= -->
+<!-- ================= ABRIR COFRE CON PIEDAD ================= -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, push, get, child, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, push, get, child, remove, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 /* 🔥 CONFIG FIREBASE */
 const firebaseConfig = {
@@ -53,7 +53,7 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 /* 🎲 PERKS */
-const bronze = ["Perk de Gagamaru","Perk del León Rojo","Perk del Monstruo","Perk del ex-delantero","Perk del maestro de la adaptabilidad","Perk de No voy a perder",];
+const bronze = ["Perk de Gagamaru","Perk del León Rojo","Perk del Monstruo","Perk del ex-delantero","Perk del maestro de la adaptabilidad","Perk de No voy a perder"];
 const rara = ["Perk Hiori"];
 const legendaria = ["Perk Emperador","Perk del Egoísta","Perk del genio total"];
 
@@ -67,27 +67,39 @@ document.getElementById("btnAbrir").addEventListener("click", async () => {
     return;
   }
 
+  // Verificar código
   const snap = await get(child(ref(db), "codigos/" + codigo));
   if (!snap.exists()) {
     alert("Código inválido o usado");
     return;
   }
 
+  // Leer contador del jugador
+  const contadorSnap = await get(child(ref(db), "conteos/" + nombre));
+  let contador = contadorSnap.exists() ? contadorSnap.val() : 0;
+
   let perk = "";
   let rareza = "";
 
-  const r = Math.random() * 100;
-  if (r < 5) {
+  // SISTEMA DE PIEDAD: cada 20 cofres → legendario garantizado
+  if ((contador + 1) % 20 === 0) {
     perk = legendaria[Math.floor(Math.random()*legendaria.length)];
-    rareza = "LEGENDARIA 👑";
-  } else if (r < 30) {
-    perk = rara[0];
-    rareza = "RARA 💎";
+    rareza = "LEGENDARIA 👑 (PIEDAD)";
   } else {
-    perk = bronze[Math.floor(Math.random()*bronze.length)];
-    rareza = "BRONZE 🟤";
+    const r = Math.random() * 100;
+    if (r < 5) {
+      perk = legendaria[Math.floor(Math.random()*legendaria.length)];
+      rareza = "LEGENDARIA 👑";
+    } else if (r < 30) {
+      perk = rara[0];
+      rareza = "RARA 💎";
+    } else {
+      perk = bronze[Math.floor(Math.random()*bronze.length)];
+      rareza = "BRONZE 🟤";
+    }
   }
 
+  // Guardar apertura
   await push(ref(db, "aperturas"), {
     jugador: nombre,
     codigo,
@@ -96,12 +108,18 @@ document.getElementById("btnAbrir").addEventListener("click", async () => {
     fecha: new Date().toLocaleString()
   });
 
+  // Incrementar contador del jugador
+  await set(ref(db, "conteos/" + nombre), contador + 1);
+
+  // Eliminar código usado
   await remove(ref(db, "codigos/" + codigo));
 
+  // Mostrar resultado
   resultado.innerHTML = `
     <b>${perk}</b><br>
     ${rareza}<br>
-    Código usado: ${codigo}
+    Código usado: ${codigo}<br>
+    Cofres abiertos: ${contador + 1}
   `;
 });
 </script>
