@@ -4,16 +4,21 @@
 <meta charset="UTF-8">
 <title>Cofres – Final Strike League</title>
 <style>
-body{background:#0f0f0f;color:white;font-family:Arial;text-align:center;}
-input, button{padding:10px;margin:5px;}
-#ruleta-container{width:200px;height:120px;overflow:hidden;margin:20px auto;border:3px solid #0ff;border-radius:10px;background:#111;}
-#ruleta{display:flex;flex-direction:column;}
-.casilla{height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;color:white;text-shadow:0 0 10px #0ff;transition:transform 0.3s ease-out;}
+body {background:#0f0f0f;color:white;font-family:Arial;text-align:center;}
+input, button {padding:10px;margin:5px;}
+
+/* Ruleta vertical */
+#ruleta-container {width:200px;height:120px;overflow:hidden;margin:20px auto;border:3px solid #0ff;border-radius:10px;background:#111;position:relative;}
+#ruleta {display:flex;flex-direction:column;transition: transform 4s cubic-bezier(0.33,1,0.68,1);}
+.casilla {height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;color:white;text-shadow:0 0 10px #0ff;}
 .casilla img{height:80px;margin-bottom:5px;}
-#barra-piedad{width:200px;height:20px;border:2px solid #0ff;border-radius:10px;margin:10px auto;position:relative;background:#222;}
-#barra-llenado{width:0%;height:100%;background:linear-gradient(90deg,#0ff,#00f);border-radius:10px;}
-#contador-piedad{position:absolute;width:100%;text-align:center;top:0;color:#0ff;font-weight:bold;}
-#resultado{margin-top:20px;font-size:18px;}
+
+/* Barra de piedad */
+#barra-piedad {width:200px;height:20px;border:2px solid #0ff;border-radius:10px;margin:10px auto;position:relative;background:#222;}
+#barra-llenado {width:0%;height:100%;background:linear-gradient(90deg,#0ff,#00f);border-radius:10px;}
+#contador-piedad {position:absolute;width:100%;text-align:center;top:0;color:#0ff;font-weight:bold;}
+
+#resultado {margin-top:20px;font-size:18px;}
 </style>
 </head>
 <body>
@@ -36,9 +41,9 @@ input, button{padding:10px;margin:5px;}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, push, get, child, remove, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, push, get, child, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-/* CONFIG FIREBASE */
+/* Config Firebase */
 const firebaseConfig = {
   apiKey: "TU_API_KEY",
   authDomain: "TU_AUTH_DOMAIN",
@@ -51,7 +56,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* VARIABLES */
+/* Variables */
 const ruleta = document.getElementById("ruleta");
 const barra = document.getElementById("barra-llenado");
 const contador = document.getElementById("contador-piedad");
@@ -60,6 +65,7 @@ const btnAbrir = document.getElementById("btnAbrir");
 
 let piedad = 0;
 
+/* Lista de perks */
 const perks = [
   {id:"perkgagamaru", nombre:"Perk de Gagamaru", rareza:"bronze"},
   {id:"perkleonrojo", nombre:"Perk del León Rojo", rareza:"bronze"},
@@ -69,7 +75,7 @@ const perks = [
   {id:"perkegoista", nombre:"Perk del Egoísta", rareza:"legendaria"}
 ];
 
-/* FUNCION ELEGIR PERK CON PIEDAD */
+/* Función elegir perk con piedad */
 function elegirPerk(){
   if(piedad >= 19){ // cada 20 aperturas
     return perks.find(p=>p.rareza==="legendaria");
@@ -80,7 +86,33 @@ function elegirPerk(){
   return perks.find(p=>p.rareza==="bronze");
 }
 
-/* BOTON ABRIR */
+/* Función girar ruleta */
+function girarRuleta(perkSeleccionado){
+  ruleta.innerHTML = "";
+  const total = 20;
+  for(let i=0;i<total;i++){
+    const p = perks[Math.floor(Math.random()*perks.length)];
+    const div = document.createElement("div");
+    div.className="casilla "+p.rareza;
+    div.innerHTML=`<img src="img/perks/${p.id}.png"/><span>${p.nombre}</span>`;
+    ruleta.appendChild(div);
+  }
+  // Casilla ganadora al final
+  const ganador = document.createElement("div");
+  ganador.className="casilla "+perkSeleccionado.rareza;
+  ganador.innerHTML=`<img src="img/perks/${perkSeleccionado.id}.png"/><span>${perkSeleccionado.nombre}</span>`;
+  ruleta.appendChild(ganador);
+
+  // Reiniciar transform
+  ruleta.style.transition="none";
+  ruleta.style.transform="translateY(0px)";
+  ruleta.offsetHeight; // fuerza reflow
+  const alturaTotal = 120*(total+1);
+  ruleta.style.transition="transform 4s cubic-bezier(0.33,1,0.68,1)";
+  ruleta.style.transform=`translateY(-${alturaTotal}px)`;
+}
+
+/* Botón abrir */
 btnAbrir.addEventListener("click", async ()=>{
   const nombre = document.getElementById("nombreJugador").value.trim();
   const codigo = document.getElementById("codigoInput").value.trim();
@@ -91,33 +123,14 @@ btnAbrir.addEventListener("click", async ()=>{
   if(!snap.exists()){alert("Código inválido o usado"); return;}
 
   const perkSeleccionado = elegirPerk();
-
-  // Construir ruleta con perks aleatorios y al final el seleccionado
-  ruleta.innerHTML = "";
-  const total = 20;
-  for(let i=0;i<total;i++){
-    const p = perks[Math.floor(Math.random()*perks.length)];
-    const div = document.createElement("div");
-    div.className="casilla "+p.rareza;
-    div.innerHTML=`<img src="img/perks/${p.id}.png"/><span>${p.nombre}</span>`;
-    ruleta.appendChild(div);
-  }
-  const ganador = document.createElement("div");
-  ganador.className="casilla "+perkSeleccionado.rareza;
-  ganador.innerHTML=`<img src="img/perks/${perkSeleccionado.id}.png"/><span>${perkSeleccionado.nombre}</span>`;
-  ruleta.appendChild(ganador);
-
-  ruleta.offsetHeight; // fuerza reflow
-  const alturaTotal = 120*(total+1);
-  ruleta.style.transition="transform 4s cubic-bezier(0.33,1,0.68,1)";
-  ruleta.style.transform=`translateY(-${alturaTotal}px)`;
+  girarRuleta(perkSeleccionado);
 
   // Actualizar piedad
   piedad=(piedad+1)%20;
   barra.style.width=(piedad/20*100)+"%";
   contador.innerText=`${piedad}/20`;
 
-  // Guardar apertura en Firebase y eliminar código
+  // Guardar apertura y eliminar código en Firebase
   await push(ref(db,"aperturas"),{
     jugador:nombre,
     codigo:codigo,
@@ -132,6 +145,5 @@ btnAbrir.addEventListener("click", async ()=>{
   },4000);
 });
 </script>
-
 </body>
 </html>
