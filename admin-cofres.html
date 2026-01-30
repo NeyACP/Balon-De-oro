@@ -32,8 +32,7 @@
     </style>
 </head>
 <body>
-<script type="module">
-    
+
 <h1>🧑‍💼 Panel Admin – Cofres</h1>
 
 <!-- LOGIN -->
@@ -46,18 +45,8 @@
 
 <!-- PANEL -->
 <div id="panel" class="hidden">
-    
-<h2>🔑 Generador de Códigos</h2>
-
-<button onclick="generarCodigo()">➕ Generar nuevo código</button>
-
-<p><strong>Códigos disponibles:</strong></p>
-<ul id="listaCodigos"></ul>
-
-<hr>
-
-    <button onclick="cargarDatos()">🔄 Actualizar</button>
     <button onclick="cerrarSesion()">🚪 Cerrar sesión</button>
+    <h2>📊 Aperturas registradas</h2>
 
     <table>
         <thead>
@@ -74,74 +63,75 @@
     </table>
 </div>
 
+<!-- ================= JS NORMAL ================= -->
 <script>
-const PASSWORD_ADMIN = "FSL9899199123"; // cambia si quieres
+const PASSWORD_ADMIN = "FSL9899199123"; // 🔴 puedes cambiarla
 
 function login() {
     const pass = document.getElementById("password").value;
     if (pass === PASSWORD_ADMIN) {
         document.getElementById("login").style.display = "none";
         document.getElementById("panel").style.display = "block";
-        localStorage.setItem("adminCofres", "true");
-        cargarDatos();
-        mostrarCodigos(); // 🔴 ESTO ERA LO QUE FALTABA
+        sessionStorage.setItem("adminAuth", "true");
     } else {
         alert("❌ Contraseña incorrecta");
     }
 }
 
 function cerrarSesion() {
-    localStorage.removeItem("adminCofres");
+    sessionStorage.removeItem("adminAuth");
     location.reload();
 }
 
-function generarCodigo() {
-    let codigos = JSON.parse(localStorage.getItem("codigosValidos")) || [];
-
-    let nuevoCodigo = "FSL-" + Math.random().toString(36).substr(2, 6).toUpperCase();
-
-    codigos.push(nuevoCodigo);
-    localStorage.setItem("codigosValidos", JSON.stringify(codigos));
-
-    mostrarCodigos(); // 🔴 refresca la lista
+if (sessionStorage.getItem("adminAuth") === "true") {
+    document.getElementById("login").style.display = "none";
+    document.getElementById("panel").style.display = "block";
 }
+</script>
 
-function mostrarCodigos() {
-    let codigos = JSON.parse(localStorage.getItem("codigosValidos")) || [];
-    let lista = document.getElementById("listaCodigos");
+<!-- ================= FIREBASE ================= -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    if (!lista) return;
+const firebaseConfig = {
+  apiKey: "AIzaSyAzqFQflwICESu5CtVuVh8r54coZmTp5UM",
+  authDomain: "thefinalstrike-4358b.firebaseapp.com",
+  databaseURL: "https://thefinalstrike-4358b-default-rtdb.firebaseio.com",
+  projectId: "thefinalstrike-4358b",
+  storageBucket: "thefinalstrike-4358b.firebasestorage.app",
+  messagingSenderId: "857358899579",
+  appId: "1:857358899579:web:a56cd2f0f75df09eecc5de"
+};
 
-    lista.innerHTML = "";
-    codigos.forEach(codigo => {
-        lista.innerHTML += `<li>${codigo}</li>`;
-    });
-}
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-function cargarDatos() {
-    let historial = JSON.parse(localStorage.getItem("historialCofres")) || [];
-    let tabla = document.getElementById("tabla");
+const tabla = document.getElementById("tabla");
+const aperturasRef = ref(db, "aperturas");
+
+onValue(aperturasRef, (snapshot) => {
     tabla.innerHTML = "";
+    let i = 1;
 
-    historial.forEach((item, i) => {
+    snapshot.forEach(child => {
+        const d = child.val();
         tabla.innerHTML += `
             <tr>
-                <td>${i + 1}</td>
-                <td>${item.jugador}</td>
-                <td>${item.perk}</td>
-                <td>${item.rareza}</td>
-                <td>${item.codigo}</td>
-                <td>${item.fecha}</td>
+                <td>${i++}</td>
+                <td>${d.jugador}</td>
+                <td>${d.perk}</td>
+                <td>${d.rareza}</td>
+                <td>${d.codigo}</td>
+                <td>${d.fecha}</td>
             </tr>
         `;
     });
-}
+});
 
-// Mantener sesión iniciada
-if (localStorage.getItem("adminCofres") === "true") {
-    document.getElementById("login").style.display = "none";
-    document.getElementById("panel").style.display = "block";
-    cargarDatos();
-    mostrarCodigos(); // 🔴 ESTO ES CLAVE
-}
+console.log("🔥 Admin conectado a Firebase");
 </script>
+
+</body>
+</html>
+
