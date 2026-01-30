@@ -1,14 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Cofres – Final Strike League</title>
+
+<style>
+body {
+  background:#0f0f0f;
+  color:white;
+  font-family:Arial;
+  text-align:center;
+}
+input, button {
+  padding:10px;
+  margin:5px;
+}
+.resultado {
+  margin-top:20px;
+  font-size:18px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎁 Cofres – Final Strike League</h1>
+
+<input id="nombreJugador" placeholder="Nombre del jugador"><br>
+<input id="codigoInput" placeholder="Código del cofre"><br>
+
+<button type="button" id="btnAbrir">Abrir Cofre</button>
+
+<div class="resultado" id="resultado"></div>
+
+<!-- ================= FIREBASE + LÓGICA ================= -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getDatabase,
-  ref,
-  get,
-  update,
-  push
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, push, get, child, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-/* ================= FIREBASE ================= */
+/* 🔥 CONFIG FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyAzqFQflwICESu5CtVuVh8r54coZmTp5UM",
   authDomain: "thefinalstrike-4358b.firebaseapp.com",
@@ -22,97 +52,60 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* ================= COFRES ================= */
-let cofresAbiertos = 0;
-let piedad = 0;
-const PIEDAD_MAX = 20;
+/* 🎲 PERKS */
+const bronze = ["Perk Gagamaru","Perk León Rojo","Perk Monstruo"];
+const rara = ["Perk Hiori"];
+const legendaria = ["Perk Emperador","Perk Egoísta"];
 
-const perksBronze = [
-  "Perk de Gagamaru",
-  "Perk León Rojo",
-  "Perk No perderé de vuelta",
-  "Perk EX Delantero",
-  "Perk del Monstruo",
-  "Perk Maestro de la Adaptabilidad"
-];
-
-const perksRara = ["Perk de Hiori"];
-
-const perksLegendaria = [
-  "Perk del Emperador",
-  "Perk del Egoísta",
-  "Perk del Genio Total"
-];
-
-function obtenerAleatoria(lista) {
-  return lista[Math.floor(Math.random() * lista.length)];
-}
-
-/* ================= ABRIR COFRE ================= */
-window.abrirCofre = async function () {
-  const nombre = document.getElementById("nombreJugador").value.trim();
-  const codigo = document.getElementById("codigoInput").value.trim();
+/* 🎁 ABRIR COFRE */
+document.getElementById("btnAbrir").addEventListener("click", async () => {
+  const nombre = nombreJugador.value.trim();
+  const codigo = codigoInput.value.trim();
 
   if (!nombre || !codigo) {
-    alert("❌ Completa nombre y código");
+    alert("Completa nombre y código");
     return;
   }
 
-  const codigoRef = ref(db, "codigos/" + codigo);
-  const snap = await get(codigoRef);
-
+  const snap = await get(child(ref(db), "codigos/" + codigo));
   if (!snap.exists()) {
-    alert("❌ Código inválido");
+    alert("Código inválido o usado");
     return;
   }
-
-  if (snap.val().usado === true) {
-    alert("❌ Código ya usado");
-    return;
-  }
-
-  cofresAbiertos++;
-  piedad++;
 
   let perk = "";
   let rareza = "";
 
-  if (piedad >= PIEDAD_MAX) {
-    perk = obtenerAleatoria(perksLegendaria);
-    rareza = "LEGENDARIA 👑 (GARANTIZADA)";
-    piedad = 0;
+  const r = Math.random() * 100;
+  if (r < 5) {
+    perk = legendaria[Math.floor(Math.random()*legendaria.length)];
+    rareza = "LEGENDARIA 👑";
+  } else if (r < 30) {
+    perk = rara[0];
+    rareza = "RARA 💎";
   } else {
-    const r = Math.random() * 100;
-    if (r < 5) {
-      perk = obtenerAleatoria(perksLegendaria);
-      rareza = "LEGENDARIA 👑";
-      piedad = 0;
-    } else if (r < 30) {
-      perk = obtenerAleatoria(perksRara);
-      rareza = "RARA 💎";
-    } else {
-      perk = obtenerAleatoria(perksBronze);
-      rareza = "BRONZE 🟤";
-    }
+    perk = bronze[Math.floor(Math.random()*bronze.length)];
+    rareza = "BRONZE 🟤";
   }
 
-  /* Marcar código como usado */
-  await update(codigoRef, { usado: true });
-
-  /* Guardar apertura */
   await push(ref(db, "aperturas"), {
     jugador: nombre,
-    codigo: codigo,
-    perk: perk,
-    rareza: rareza,
+    codigo,
+    perk,
+    rareza,
     fecha: new Date().toLocaleString()
   });
 
-  document.getElementById("contador").textContent = cofresAbiertos;
-  document.getElementById("piedad").textContent = piedad;
-  document.getElementById("resultado").innerHTML =
-    `<strong>${perk}</strong><br>${rareza}<br>Código usado: ${codigo}`;
-};
+  await remove(ref(db, "codigos/" + codigo));
 
-console.log("🎁 Cofres conectados a Firebase");
+  resultado.innerHTML = `
+    <b>${perk}</b><br>
+    ${rareza}<br>
+    Código usado: ${codigo}
+  `;
+});
 </script>
+
+</body>
+</html>
+
