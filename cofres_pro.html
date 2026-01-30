@@ -120,6 +120,15 @@ function abrirCofre() {
         } else {
             perk = obtenerAleatoria(perksBronze);
             rareza = "BRONZE 🟤";
+            
+            guardarAperturaFirebase({
+    jugador: nombre,
+    codigo: codigo,
+    perk: perk,
+    rareza: rareza,
+    fecha: new Date().toISOString()
+});
+
         }
     }
 
@@ -131,13 +140,10 @@ function abrirCofre() {
 }
 </script>
 
-<!-- ================= FIREBASE (LUEGO LO CONECTAMOS) ================= -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-<!-- FIREBASE SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
-<script>
 const firebaseConfig = {
   apiKey: "AIzaSyAzqFQflwICESu5CtVuVh8r54coZmTp5UM",
   authDomain: "thefinalstrike-4358b.firebaseapp.com",
@@ -148,13 +154,21 @@ const firebaseConfig = {
   appId: "1:857358899579:web:a56cd2f0f75df09eecc5de"
 };
 
-// Inicializar Firebase
-firebase.initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-// Base de datos
-const db = firebase.database();
+// 👉 FUNCIÓN GLOBAL PARA GUARDAR APERTURAS
+window.guardarAperturaFirebase = function (datos) {
+    push(ref(db, "aperturas_cofres"), datos)
+        .then(() => {
+            console.log("✅ Apertura guardada en Firebase");
+        })
+        .catch(err => {
+            console.error("❌ Error al guardar:", err);
+        });
+};
 
-console.log("🔥 Firebase conectado sin errores");
+console.log("🔥 Firebase listo para guardar datos");
 </script>
 
 </body>
