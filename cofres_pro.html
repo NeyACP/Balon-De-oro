@@ -2,85 +2,124 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>🎁 Cofres Interactivos – Final Strike League</title>
+<title>Cofres – Final Strike League</title>
 <style>
-body {
-  margin:0; padding:0;
-  background: linear-gradient(45deg,#0f0f0f,#1a1a1a);
-  font-family: Arial;
-  color: white;
-  text-align: center;
-  overflow-x: hidden;
-}
+  body {
+    background:#0b0b0b;
+    font-family: 'Arial', sans-serif;
+    color:white;
+    text-align:center;
+    overflow-x:hidden;
+  }
 
-#fondo {
-  position: fixed;
-  top:0; left:0; width:100%; height:100%;
-  background: url('img/fondo.jpg') no-repeat center center/cover;
-  z-index:-1;
-}
+  h1 {
+    text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+  }
 
-h1 { margin-top:20px; }
+  #slot-container {
+    margin: 20px auto;
+    width: 200px;
+    height: 300px;
+    overflow: hidden;
+    border: 3px solid #0ff;
+    border-radius: 10px;
+    position: relative;
+    background: #111;
+    box-shadow: 0 0 20px #0ff;
+  }
 
-input, button { padding:10px; margin:5px; font-size:16px; }
+  .slot {
+    position: absolute;
+    top:0;
+    width:100%;
+  }
 
-#ruedaContainer {
-  position: relative;
-  width: 300px; height: 300px;
-  margin: 20px auto;
-  border-radius:50%;
-  overflow:hidden;
-  border:5px solid gold;
-}
+  .casilla {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    height:100px;
+    font-weight:bold;
+    font-size:16px;
+    border-bottom:1px solid #222;
+    color:white;
+    text-shadow: 0 0 5px #0ff;
+  }
 
-#rueda {
-  width:100%; height:100%;
-  transform: rotate(0deg);
-  transition: transform 4s cubic-bezier(0.25,1,0.5,1);
-}
+  .casilla.bronze { background:#4b3a2a; }
+  .casilla.rara { background:#0055ff; text-shadow:0 0 10px #0ff; }
+  .casilla.legendaria { background:#ffd700; text-shadow:0 0 15px #ff0; }
 
-.sector {
-  position:absolute;
-  width:50%; height:50%;
-  top:50%; left:50%;
-  transform-origin: 0% 0%;
-  text-align:left;
-  padding-left:10px;
-  font-size:14px;
-  color:white;
-  font-weight:bold;
-}
+  .casilla img {
+    width:60px;
+    height:60px;
+    margin-bottom:5px;
+  }
 
-#flecha {
-  position:absolute;
-  top:-20px; left:50%; transform:translateX(-50%);
-  width:0; height:0;
-  border-left:15px solid transparent;
-  border-right:15px solid transparent;
-  border-bottom:30px solid red;
-  z-index:10;
-}
+  #resultado {
+    margin-top:20px;
+    font-size:18px;
+    text-shadow:0 0 10px #0ff;
+  }
 
-#resultado {
-  margin-top:20px;
-  font-size:18px;
-}
+  #piedad-bar {
+    margin: 20px auto;
+    width: 220px;
+    height: 25px;
+    border:2px solid #0ff;
+    border-radius:10px;
+    overflow:hidden;
+    background:#111;
+    box-shadow:0 0 10px #0ff inset;
+    position:relative;
+  }
 
-#piedadBarContainer {
-  width:80%; height:20px;
-  background:#444; margin:20px auto; border-radius:10px;
-}
+  #piedad-fill {
+    height:100%;
+    width:0%;
+    background: linear-gradient(90deg,#0ff,#00f,#0ff);
+    animation: glow 2s infinite alternate;
+    transition: width 0.5s;
+  }
 
-#piedadBar {
-  height:100%; width:0%;
-  background: gold;
-  border-radius:10px;
-  transition: width 0.5s ease;
-}
+  #piedad-text {
+    position:absolute;
+    width:100%;
+    text-align:center;
+    top:0;
+    line-height:25px;
+    font-weight:bold;
+    color:white;
+    text-shadow:0 0 5px #0ff;
+  }
+
+  @keyframes glow {
+    0%{ box-shadow:0 0 10px #0ff; }
+    100%{ box-shadow:0 0 20px #0ff; }
+  }
+
+  button {
+    padding:10px 20px;
+    margin-top:10px;
+    background:#0ff;
+    color:#000;
+    border:none;
+    font-weight:bold;
+    border-radius:5px;
+    cursor:pointer;
+    text-shadow:0 0 3px #0ff;
+    box-shadow: 0 0 10px #0ff;
+    transition:0.3s;
+  }
+
+  button:hover {
+    box-shadow:0 0 20px #0ff;
+    transform: scale(1.05);
+  }
 </style>
 </head>
 <body>
-<div id="fondo"></div>
 
 <h1>🎁 Cofres – Final Strike League</h1>
 
@@ -88,25 +127,25 @@ input, button { padding:10px; margin:5px; font-size:16px; }
 <input id="codigoInput" placeholder="Código del cofre"><br>
 <button id="btnAbrir">Abrir Cofre</button>
 
-<div id="ruedaContainer">
-  <div id="rueda"></div>
-  <div id="flecha"></div>
-</div>
-
-<div id="piedadBarContainer">
-  <div id="piedadBar"></div>
+<div id="slot-container">
+  <div id="slot" class="slot"></div>
 </div>
 
 <div id="resultado"></div>
+
+<div id="piedad-bar">
+  <div id="piedad-fill"></div>
+  <div id="piedad-text">0 / 20</div>
+</div>
 
 <audio id="sonidoGiro" src="audio/giro.mp3"></audio>
 <audio id="sonidoPremio" src="audio/premio.mp3"></audio>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, push, get, child, remove, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, push, get, child, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-/* 🔥 Firebase Config */
+/* Firebase Config */
 const firebaseConfig = {
   apiKey: "AIzaSyAzqFQflwICESu5CtVuVh8r54coZmTp5UM",
   authDomain: "thefinalstrike-4358b.firebaseapp.com",
@@ -116,105 +155,110 @@ const firebaseConfig = {
   messagingSenderId: "857358899579",
   appId: "1:857358899579:web:a56cd2f0f75df09eecc5de"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 /* 🎲 Perks */
-const bronze = ["Perk de Gagamaru","Perk del León Rojo","Perk del Monstruo","Perk del ex-delantero","perk del maestro de la adpatacion","Perk de no voy a perder de nuevo"];
-const rara = ["Perk Hiori"];
-const legendaria = ["Perk del Emperador","Perk del Egoísta","Perk del genio total"];
+const perks = [
+  {id:"gagamaru", nombre:"Perk de Gagamaru", rareza:"bronze"},
+  {id:"leonrojo", nombre:"Perk del León Rojo", rareza:"bronze"},
+  {id:"monstruo", nombre:"Perk del Monstruo", rareza:"bronze"},
+  {id:"ex-delantero", nombre:"Perk del ex-delantero", rareza:"bronze"},
+  {id:"maestro-adaptabilidad", nombre:"Perk del maestro de la adaptabilidad", rareza:"bronze"},
+  {id:"no-voy-a-perder", nombre:"Perk de No voy a perder", rareza:"bronze"},
+  {id:"hiori", nombre:"Perk Hiori", rareza:"rara"},
+  {id:"emperador", nombre:"Perk Emperador", rareza:"legendaria"},
+  {id:"egoista", nombre:"Perk del Egoísta", rareza:"legendaria"},
+  {id:"genio-total", nombre:"Perk del genio total", rareza:"legendaria"}
+];
 
-/* 🌈 Colores por rareza */
-const colores = { bronze:"#a0522d", rara:"#1e90ff", legendaria:"#ffd700" };
+/* Slots con probabilidades */
+function crearPool() {
+  let pool = [];
+  perks.forEach(p=>{
+    if(p.rareza==="bronze") for(let i=0;i<60;i++) pool.push(p);
+    else if(p.rareza==="rara") for(let i=0;i<25;i++) pool.push(p);
+    else if(p.rareza==="legendaria") for(let i=0;i<5;i++) pool.push(p);
+  });
+  return pool;
+}
 
-/* Rueda: crear sectores visuales */
-const rueda = document.getElementById("rueda");
-const perks = [...bronze, ...rara, ...legendaria];
-const total = perks.length;
-perks.forEach((perk,i)=>{
-  const div = document.createElement("div");
-  div.className="sector";
-  div.style.transform = `rotate(${(360/total)*i}deg)`;
-  if(bronze.includes(perk)) div.style.background=colores.bronze;
-  else if(rara.includes(perk)) div.style.background=colores.rara;
-  else div.style.background=colores.legendaria;
-  div.textContent=perk;
-  rueda.appendChild(div);
-});
+/* Piedad */
+let giros = 0;
 
-const flecha = document.getElementById("flecha");
-const resultadoDiv = document.getElementById("resultado");
-const piedadBar = document.getElementById("piedadBar");
-const sonidoGiro = document.getElementById("sonidoGiro");
-const sonidoPremio = document.getElementById("sonidoPremio");
-
+/* Abrir Cofre */
 document.getElementById("btnAbrir").addEventListener("click", async ()=>{
   const nombre = document.getElementById("nombreJugador").value.trim();
   const codigo = document.getElementById("codigoInput").value.trim();
-  if(!nombre || !codigo){ alert("Completa nombre y código"); return; }
+  if(!nombre||!codigo){ alert("Completa nombre y código"); return; }
 
-  // Verificar código
-  const snap = await get(child(ref(db), "codigos/"+codigo));
+  const snap = await get(child(ref(db),"codigos/"+codigo));
   if(!snap.exists()){ alert("Código inválido o usado"); return; }
 
-  // Leer contador del jugador
-  const contadorSnap = await get(child(ref(db), "conteos/"+nombre));
-  let contador = contadorSnap.exists()?contadorSnap.val():0;
+  // Crear pool y elegir perk
+  let pool = crearPool();
+  let perkSeleccionado = pool[Math.floor(Math.random()*pool.length)];
 
-  // Determinar perk y rareza
-  let perk="", rareza="";
-  let isPiedad = false;
-  if((contador+1)%20===0){
-    perk = legendaria[Math.floor(Math.random()*legendaria.length)];
-    rareza = "LEGENDARIA 👑 (PIEDAD)";
-    isPiedad = true;
-  }else{
-    const r = Math.random()*100;
-    if(r<5){ perk = legendaria[Math.floor(Math.random()*legendaria.length)]; rareza="LEGENDARIA 👑"; }
-    else if(r<30){ perk=rara[0]; rareza="RARA 💎"; }
-    else{ perk=bronze[Math.floor(Math.random()*bronze.length)]; rareza="BRONZE 🟤"; }
+  // Piedad: si giros % 20 === 0, legendaria garantizada
+  giros++;
+  if(giros%20===0){
+    const legendarias = perks.filter(p=>p.rareza==="legendaria");
+    perkSeleccionado = legendarias[Math.floor(Math.random()*legendarias.length)];
   }
 
-  // Guardar apertura
-  await push(ref(db,"aperturas"),{
-    jugador:nombre,
-    codigo,
-    perk,
-    rareza,
-    fecha:new Date().toLocaleString()
-  });
+  // Crear slots visibles
+  const slot = document.getElementById("slot");
+  slot.innerHTML="";
+  let totalCasillas = 30;
+  for(let i=0;i<totalCasillas;i++){
+    let p = pool[Math.floor(Math.random()*pool.length)];
+    let div = document.createElement("div");
+    div.className="casilla "+p.rareza;
+    div.innerHTML=`<img src="img/perks/${p.id}.png"/><span>${p.nombre}</span>`;
+    slot.appendChild(div);
+  }
 
-  // Incrementar contador
-  await set(ref(db,"conteos/"+nombre),contador+1);
+  // Agregar perk ganador al final para que caiga
+  let ganador = document.createElement("div");
+  ganador.className="casilla "+perkSeleccionado.rareza;
+  ganador.innerHTML=`<img src="img/perks/${perkSeleccionado.id}.png"/><span>${perkSeleccionado.nombre}</span>`;
+  slot.appendChild(ganador);
 
-  // Eliminar código usado
-  await remove(ref(db,"codigos/"+codigo));
+  // Animación vertical
+  slot.style.transition="transform 4s cubic-bezier(0.25,1,0.5,1)";
+  slot.style.transform=`translateY(-${100*(totalCasillas)}px)`;
 
-  // Actualizar barra de piedad
-  const progreso = ((contador+1)%20)/20*100;
-  piedadBar.style.width = progreso+"%";
-
-  // Animación de rueda
-  const sectorIndex = perks.indexOf(perk);
-  const randomVueltas = 5; // vueltas completas
-  const anguloPorSector = 360/total;
-  const targetDeg = 360*randomVueltas - (sectorIndex*anguloPorSector + anguloPorSector/2);
+  // Música
+  const sonidoGiro = document.getElementById("sonidoGiro");
+  const sonidoPremio = document.getElementById("sonidoPremio");
   sonidoGiro.currentTime=0; sonidoGiro.play();
-  rueda.style.transition="transform 6s cubic-bezier(0.25,1,0.5,1)";
-  rueda.style.transform=`rotate(${targetDeg}deg)`;
-  
-  // Mostrar resultado al terminar animación
-  setTimeout(()=>{
+
+  setTimeout(async ()=>{
     sonidoGiro.pause();
     sonidoPremio.currentTime=0; sonidoPremio.play();
-    resultadoDiv.innerHTML=`
-      <b>${perk}</b><br>${rareza}<br>
-      Código usado: ${codigo}<br>
-      Cofres abiertos: ${contador+1}${isPiedad?" 🔥 Piedad activada!":""}
-    `;
+
+    // Guardar apertura en Firebase
+    await push(ref(db,"aperturas"),{
+      jugador:nombre,
+      codigo,
+      perk:perkSeleccionado.nombre,
+      rareza:perkSeleccionado.rareza.toUpperCase(),
+      fecha:new Date().toLocaleString()
+    });
+
+    await remove(ref(db,"codigos/"+codigo));
+
+    document.getElementById("resultado").innerHTML=`<b>${perkSeleccionado.nombre}</b><br>${perkSeleccionado.rareza.toUpperCase()}<br>Código usado: ${codigo}`;
+
+    // Actualizar barra de piedad
+    const fill = document.getElementById("piedad-fill");
+    const text = document.getElementById("piedad-text");
+    let porcentaje = (giros%20)*5; // 20 giros → 100%
+    fill.style.width=porcentaje+"%";
+    text.innerText=`${giros%20} / 20 (${porcentaje}%)`;
   },4000);
 });
 </script>
+
 </body>
 </html>
