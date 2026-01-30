@@ -63,20 +63,28 @@ ul{list-style:none;padding:0;}
 <script>
 const PASSWORD_ADMIN = "FSL9899199123";
 
+const loginDiv = document.getElementById("login");
+const panelDiv = document.getElementById("panel");
+
 function login(){
-    if(document.getElementById("password").value === PASSWORD_ADMIN){
-        loginBox.style.display="none";
-        panel.style.display="block";
+    const pass = document.getElementById("password").value;
+    if(pass === PASSWORD_ADMIN){
+        loginDiv.style.display = "none";
+        panelDiv.style.display = "block";
         sessionStorage.setItem("admin","true");
-    } else alert("Contraseña incorrecta");
+    } else {
+        alert("❌ Contraseña incorrecta");
+    }
 }
+
 function cerrarSesion(){
     sessionStorage.clear();
     location.reload();
 }
-if(sessionStorage.getItem("admin")==="true"){
-    login.style.display="none";
-    panel.style.display="block";
+
+if(sessionStorage.getItem("admin") === "true"){
+    loginDiv.style.display = "none";
+    panelDiv.style.display = "block";
 }
 </script>
 
