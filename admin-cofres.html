@@ -3,21 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <title>Admin Cofres – Final Strike League</title>
+
 <style>
-body{
-    font-family: Arial;
+body {
     background:#0e0e0e;
     color:white;
+    font-family:Arial;
     text-align:center;
 }
-input,button{padding:10px;margin:5px;}
-table{margin:auto;width:95%;border-collapse:collapse;}
-th,td{border:1px solid #444;padding:8px;}
-th{background:#222;}
-.hidden{display:none;}
-ul{list-style:none;padding:0;}
+input, button {
+    padding:10px;
+    margin:5px;
+}
+table {
+    width:95%;
+    margin:auto;
+    border-collapse:collapse;
+}
+th, td {
+    border:1px solid #444;
+    padding:8px;
+}
+th { background:#222; }
+.hidden { display:none; }
 </style>
 </head>
+
 <body>
 
 <h1>🧑‍💼 Panel Admin – Cofres</h1>
@@ -33,16 +44,16 @@ ul{list-style:none;padding:0;}
 <!-- PANEL -->
 <div id="panel" class="hidden">
 
-<h2>🔑 Generador de Códigos</h2>
+<h2>🔑 Generar códigos</h2>
 <button onclick="generarCodigo()">➕ Generar código</button>
 
 <ul id="listaCodigos"></ul>
 
 <hr>
 
+<button onclick="cargarAperturas()">🔄 Actualizar</button>
 <button onclick="cerrarSesion()">🚪 Cerrar sesión</button>
 
-<h2>📊 Aperturas</h2>
 <table>
 <thead>
 <tr>
@@ -59,39 +70,11 @@ ul{list-style:none;padding:0;}
 
 </div>
 
-<!-- ================= JS NORMAL ================= -->
-<script>
-const PASSWORD_ADMIN = "FSL9899199123";
-
-const loginDiv = document.getElementById("login");
-const panelDiv = document.getElementById("panel");
-
-function login(){
-    const pass = document.getElementById("password").value;
-    if(pass === PASSWORD_ADMIN){
-        loginDiv.style.display = "none";
-        panelDiv.style.display = "block";
-        sessionStorage.setItem("admin","true");
-    } else {
-        alert("❌ Contraseña incorrecta");
-    }
-}
-
-function cerrarSesion(){
-    sessionStorage.clear();
-    location.reload();
-}
-
-if(sessionStorage.getItem("admin") === "true"){
-    loginDiv.style.display = "none";
-    panelDiv.style.display = "block";
-}
-</script>
-
 <!-- ================= FIREBASE ================= -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, push, set, onValue } 
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAzqFQflwICESu5CtVuVh8r54coZmTp5UM",
@@ -106,46 +89,79 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// ===== CÓDIGOS =====
-const codigosRef = ref(db,"codigos");
-const listaCodigos = document.getElementById("listaCodigos");
+window.db = db;
+window.ref = ref;
+window.push = push;
+window.set = set;
+window.onValue = onValue;
 
-window.generarCodigo = () => {
-    const codigo = "FSL-" + Math.random().toString(36).substring(2,8).toUpperCase();
-    push(codigosRef,{codigo,usado:false});
-};
+console.log("🔥 Firebase Admin listo");
+</script>
 
-onValue(codigosRef,(snap)=>{
-    listaCodigos.innerHTML="";
-    snap.forEach(c=>{
-        if(!c.val().usado){
-            listaCodigos.innerHTML += `<li>🔑 ${c.val().codigo}</li>`;
-        }
+<!-- ================= LÓGICA ADMIN ================= -->
+<script>
+const PASSWORD_ADMIN = "FSL9899199123";
+
+function login() {
+    if (document.getElementById("password").value === PASSWORD_ADMIN) {
+        localStorage.setItem("admin", "true");
+        document.getElementById("login").style.display="none";
+        document.getElementById("panel").style.display="block";
+        mostrarCodigos();
+        cargarAperturas();
+    } else alert("Contraseña incorrecta");
+}
+
+function cerrarSesion() {
+    localStorage.removeItem("admin");
+    location.reload();
+}
+
+function generarCodigo() {
+    const codigo = "FSL-" + Math.random().toString(36).substr(2,6).toUpperCase();
+    set(ref(db, "codigos/" + codigo), {
+        usado:false,
+        creado:new Date().toISOString()
     });
-});
+}
 
-// ===== APERTURAS =====
-const tabla = document.getElementById("tabla");
-const aperturasRef = ref(db,"aperturas");
-
-onValue(aperturasRef,(snap)=>{
-    tabla.innerHTML="";
-    let i=1;
-    snap.forEach(c=>{
-        const d=c.val();
-        tabla.innerHTML+=`
-        <tr>
-            <td>${i++}</td>
-            <td>${d.jugador}</td>
-            <td>${d.perk}</td>
-            <td>${d.rareza}</td>
-            <td>${d.codigo}</td>
-            <td>${d.fecha}</td>
-        </tr>`;
+function mostrarCodigos() {
+    onValue(ref(db,"codigos"), snap=>{
+        const lista=document.getElementById("listaCodigos");
+        lista.innerHTML="";
+        snap.forEach(c=>{
+            if(!c.val().usado)
+                lista.innerHTML+=`<li>${c.key}</li>`;
+        });
     });
-});
+}
 
-console.log("🔥 Admin listo");
+function cargarAperturas() {
+    onValue(ref(db,"aperturas"), snap=>{
+        const tabla=document.getElementById("tabla");
+        tabla.innerHTML="";
+        let i=1;
+        snap.forEach(c=>{
+            const d=c.val();
+            tabla.innerHTML+=`
+            <tr>
+                <td>${i++}</td>
+                <td>${d.jugador}</td>
+                <td>${d.perk}</td>
+                <td>${d.rareza}</td>
+                <td>${d.codigo}</td>
+                <td>${d.fecha}</td>
+            </tr>`;
+        });
+    });
+}
+
+if(localStorage.getItem("admin")==="true"){
+    document.getElementById("login").style.display="none";
+    document.getElementById("panel").style.display="block";
+    mostrarCodigos();
+    cargarAperturas();
+}
 </script>
 
 </body>
