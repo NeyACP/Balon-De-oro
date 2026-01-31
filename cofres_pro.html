@@ -4,119 +4,118 @@
 <meta charset="UTF-8">
 <title>Cofres – Final Strike League</title>
 <style>
-  body {
-    background:#0b0b0b;
-    font-family: 'Arial', sans-serif;
+:root{
+    --negro:#0b0e14;
+    --azul:#1e90ff;
+    --azul-oscuro:#0f2a44;
+    --card:#121826;
+}
+
+body{
+    margin:0;
+    min-height:100vh;
+    background:
+        radial-gradient(circle at top, #0f2a44 0%, #05070c 60%);
     color:white;
+    font-family:'Inter', sans-serif;
     text-align:center;
-    overflow-x:hidden;
-  }
+}
 
-  h1 {
-    text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
-  }
+h1, h2{
+    font-family:'Orbitron', sans-serif;
+    color:var(--azul);
+    text-shadow:0 0 10px rgba(30,144,255,.4);
+}
 
-  #slot-container {
-    margin: 20px auto;
-    width: 200px;
-    height: 300px;
-    overflow: hidden;
-    border: 3px solid #0ff;
-    border-radius: 10px;
-    position: relative;
-    background: #111;
-    box-shadow: 0 0 20px #0ff;
-  }
+#login, #panel{
+    background:var(--card);
+    max-width:900px;
+    margin:40px auto;
+    padding:25px;
+    border-radius:16px;
+    box-shadow:0 0 40px rgba(0,0,0,.7);
+    border:1px solid #1c2f4a;
+}
 
-  .slot {
-    position: absolute;
-    top:0;
-    width:100%;
-  }
-
-  .casilla {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    height:100px;
-    font-weight:bold;
-    font-size:16px;
-    border-bottom:1px solid #222;
+input{
+    background:#0b1220;
+    border:1px solid #1e3a5f;
     color:white;
-    text-shadow: 0 0 5px #0ff;
-  }
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:15px;
+}
 
-  .casilla.bronze { background:#4b3a2a; }
-  .casilla.rara { background:#0055ff; text-shadow:0 0 10px #0ff; }
-  .casilla.legendaria { background:#ffd700; text-shadow:0 0 15px #ff0; }
-
-  .casilla img {
-    width:60px;
-    height:60px;
-    margin-bottom:5px;
-  }
-
-  #resultado {
-    margin-top:20px;
-    font-size:18px;
-    text-shadow:0 0 10px #0ff;
-  }
-
-  #piedad-bar {
-    margin: 20px auto;
-    width: 220px;
-    height: 25px;
-    border:2px solid #0ff;
-    border-radius:10px;
-    overflow:hidden;
-    background:#111;
-    box-shadow:0 0 10px #0ff inset;
-    position:relative;
-  }
-
-  #piedad-fill {
-    height:100%;
-    width:0%;
-    background: linear-gradient(90deg,#0ff,#00f,#0ff);
-    animation: glow 2s infinite alternate;
-    transition: width 0.5s;
-  }
-
-  #piedad-text {
-    position:absolute;
-    width:100%;
-    text-align:center;
-    top:0;
-    line-height:25px;
-    font-weight:bold;
-    color:white;
-    text-shadow:0 0 5px #0ff;
-  }
-
-  @keyframes glow {
-    0%{ box-shadow:0 0 10px #0ff; }
-    100%{ box-shadow:0 0 20px #0ff; }
-  }
-
-  button {
-    padding:10px 20px;
-    margin-top:10px;
-    background:#0ff;
-    color:#000;
+button{
+    background:linear-gradient(135deg,var(--azul),#0a66cc);
     border:none;
-    font-weight:bold;
-    border-radius:5px;
+    border-radius:10px;
+    padding:12px 20px;
+    color:white;
+    font-weight:600;
     cursor:pointer;
-    text-shadow:0 0 3px #0ff;
-    box-shadow: 0 0 10px #0ff;
-    transition:0.3s;
-  }
+    transition:.25s;
+}
 
-  button:hover {
-    box-shadow:0 0 20px #0ff;
-    transform: scale(1.05);
-  }
+button:hover{
+    transform:scale(1.05);
+    box-shadow:0 0 15px rgba(30,144,255,.6);
+}
+
+ul{
+    list-style:none;
+    padding:0;
+}
+
+ul li{
+    background:#0b1220;
+    margin:6px auto;
+    padding:10px;
+    max-width:300px;
+    border-radius:8px;
+    border:1px solid #1e3a5f;
+}
+
+table{
+    width:100%;
+    margin-top:20px;
+    border-collapse:collapse;
+    font-size:14px;
+}
+
+th{
+    background:#0f2a44;
+    color:#7fc3ff;
+    font-family:'Orbitron', sans-serif;
+}
+
+td{
+    background:#0b1220;
+}
+
+th, td{
+    border:1px solid #1e3a5f;
+    padding:8px;
+}
+
+tr:hover td{
+    background:#101b33;
+}
+
+.hidden{
+    display:none;
+}
+  
+.ruleta{
+    margin:20px auto;
+    padding:20px;
+    max-width:350px;
+    background:linear-gradient(180deg,#0f2a44,#05070c);
+    border-radius:14px;
+    box-shadow:0 0 30px rgba(30,144,255,.25);
+    border:1px solid #1e3a5f;
+}
+
 </style>
 </head>
 <body>
@@ -136,7 +135,9 @@
 <div id="piedad-bar">
   <div id="piedad-fill"></div>
   <div id="piedad-text">0 / 20</div>
+<div class="ruleta">
 </div>
+
 
 <audio id="sonidoGiro" src="audio/giro.mp3"></audio>
 <audio id="sonidoPremio" src="audio/premio.mp3"></audio>
