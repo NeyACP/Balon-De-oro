@@ -2,14 +2,13 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Ruleta Cofre – Final Strike League</title>
+<title>Cofre de Perks – Final Strike League</title>
 
-<!-- FUENTE GÓTICA -->
 <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
 
 <style>
 body{
-    background:radial-gradient(circle,#0a0f2c,#000);
+    background:radial-gradient(circle,#081026,#000);
     font-family:'UnifrakturCook', cursive;
     color:white;
     display:flex;
@@ -19,28 +18,46 @@ body{
     margin:0;
 }
 
-.ruleta-container{
+.panel{
+    width:300px;
     background:#050816;
     border:2px solid #1a237e;
     border-radius:15px;
     padding:20px;
-    width:280px;
     text-align:center;
-    box-shadow:0 0 20px #0d47a1;
+    box-shadow:0 0 25px #0d47a1;
 }
 
-.titulo{
-    font-size:22px;
+h2{ margin:5px 0 10px; }
+
+input{
+    width:100%;
+    padding:8px;
     margin-bottom:10px;
+    border-radius:6px;
+    border:none;
+    text-align:center;
 }
+
+button{
+    width:100%;
+    padding:10px;
+    background:#0d47a1;
+    border:none;
+    color:white;
+    border-radius:8px;
+    cursor:pointer;
+}
+button:hover{ background:#1565c0; }
 
 .tragamonedas{
-    position:relative;
+    margin-top:15px;
     height:150px;
     overflow:hidden;
     border:2px solid #222;
     border-radius:10px;
-    background:#000;
+    background:black;
+    position:relative;
 }
 
 .flecha{
@@ -48,41 +65,33 @@ body{
     right:-20px;
     top:50%;
     transform:translateY(-50%);
-    font-size:30px;
-    color:#ffd700;
+    font-size:28px;
+    color:gold;
 }
 
 .slot{
     height:50px;
     display:flex;
-    justify-content:center;
     align-items:center;
-    font-size:16px;
-    transition:0.2s;
+    justify-content:center;
+    font-size:15px;
 }
 
 .bronze{ color:#cd7f32; }
 .rara{ color:#2196f3; }
 .legendaria{
-    color:#ffd700;
+    color:gold;
     text-shadow:0 0 8px gold;
 }
 
-.boton{
-    margin-top:15px;
-    padding:10px;
-    width:100%;
-    background:#0d47a1;
-    border:none;
-    color:white;
-    font-size:16px;
-    cursor:pointer;
-    border-radius:8px;
+img{
+    width:120px;
+    margin-top:10px;
+    display:none;
 }
-.boton:hover{ background:#1565c0; }
 
 .piedad{
-    margin-top:10px;
+    margin-top:8px;
     font-size:14px;
 }
 </style>
@@ -90,29 +99,33 @@ body{
 
 <body>
 
-<div class="ruleta-container">
-    <div class="titulo">🎰 Cofre de Perks</div>
+<div class="panel">
+<h2>🎰 Cofre de Perks</h2>
 
-    <div class="tragamonedas">
-        <div id="slots">
-            <div class="slot">---</div>
-            <div class="slot">---</div>
-            <div class="slot">---</div>
-        </div>
-        <div class="flecha">▶</div>
+<input id="codigo" placeholder="Ingresa tu código">
+
+<button onclick="canjear()">Canjear Código</button>
+
+<div class="tragamonedas">
+    <div id="slots">
+        <div class="slot">---</div>
+        <div class="slot">---</div>
+        <div class="slot">---</div>
     </div>
-
-    <button class="boton" onclick="abrirCofre()">Abrir Cofre</button>
-
-    <div class="piedad">
-        Piedad: <span id="piedad">0</span> / 15
-    </div>
+    <div class="flecha">▶</div>
 </div>
 
-<!-- ================= FIREBASE ================= -->
+<img id="imgPerk">
+
+<div class="piedad">
+    Piedad: <span id="piedad">0</span> / 15
+</div>
+</div>
+
+<!-- ============ FIREBASE ============ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, get, set, update } 
+import { getDatabase, ref, get, set, update, push }
 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 const firebaseConfig = {
@@ -133,70 +146,78 @@ window.ref=ref;
 window.get=get;
 window.set=set;
 window.update=update;
+window.push=push;
 </script>
 
 <script>
-const perks=[
- {nombre:"Perk de Gagamaru", rareza:"bronze"},
- {nombre:"Perk del León Rojo", rareza:"bronze"},
- {nombre:"Perk del Monstruo", rareza:"bronze"},
- {nombre:"Perk del ex-delantero", rareza:"bronze"},
- {nombre:"Perk del maestro de la adaptabilidad", rareza:"bronze"},
- {nombre:"Perk de No voy a perder", rareza:"bronze"},
- {nombre:"Perk Hiori", rareza:"rara"},
- {nombre:"Perk Emperador", rareza:"legendaria"},
- {nombre:"Perk del Egoísta", rareza:"legendaria"},
- {nombre:"Perk del genio total", rareza:"legendaria"}
-];
-
-const jugadorID = "jugador-demo"; // luego lo conectas a tu sistema real
+const jugador = "jugador-demo";
 const piedadMax = 15;
 
-async function cargarPiedad(){
-    const snap = await get(ref(db,"piedad/"+jugadorID));
-    const p = snap.exists()? snap.val().contador : 0;
-    document.getElementById("piedad").textContent = p;
-    return p;
-}
+const perks=[
+ {nombre:"Perk de Gagamaru", rareza:"bronze", img:"img/gagamaru.png"},
+ {nombre:"Perk del León Rojo", rareza:"bronze", img:"img/leonrojo.png"},
+ {nombre:"Perk del Monstruo", rareza:"bronze", img:"img/monstruo.png"},
+ {nombre:"Perk del ex-delantero", rareza:"bronze", img:"img/exdelantero.png"},
+ {nombre:"Perk del maestro de la adaptabilidad", rareza:"bronze", img:"img/adaptabilidad.png"},
+ {nombre:"Perk de No voy a perder", rareza:"bronze", img:"img/novoyaperder.png"},
+ {nombre:"Perk Hiori", rareza:"rara", img:"img/hiori.png"},
+ {nombre:"Perk Emperador", rareza:"legendaria", img:"img/emperador.png"},
+ {nombre:"Perk del Egoísta", rareza:"legendaria", img:"img/egoista.png"},
+ {nombre:"Perk del genio total", rareza:"legendaria", img:"img/geniototal.png"}
+];
 
-async function guardarPiedad(valor){
-    await set(ref(db,"piedad/"+jugadorID),{
-        contador:valor,
-        fecha:Date.now()
-    });
-    document.getElementById("piedad").textContent = valor;
-}
+async function canjear(){
+    const codigo=document.getElementById("codigo").value.trim();
+    if(!codigo) return alert("Ingresa un código");
 
-function elegirPerk(piedad){
-    if(piedad >= piedadMax){
-        return perks.filter(p=>p.rareza==="legendaria")[Math.floor(Math.random()*3)];
+    const snap = await get(ref(db,"codigos/"+codigo));
+    if(!snap.exists() || snap.val().usado){
+        alert("❌ Código inválido o ya usado");
+        return;
     }
-    const r=Math.random();
-    if(r<0.7) return perks.filter(p=>p.rareza==="bronze")[Math.floor(Math.random()*6)];
-    if(r<0.9) return perks.filter(p=>p.rareza==="rara")[0];
-    return perks.filter(p=>p.rareza==="legendaria")[Math.floor(Math.random()*3)];
+
+    abrirCofre(codigo);
 }
 
-async function abrirCofre(){
-    let piedad = await cargarPiedad();
-    const perk = elegirPerk(piedad);
+async function abrirCofre(codigo){
+    let piedad = (await get(ref(db,"piedad/"+jugador))).val()?.contador || 0;
+
+    let perk;
+    if(piedad>=piedadMax){
+        perk = perks.filter(p=>p.rareza==="legendaria")[Math.floor(Math.random()*3)];
+    }else{
+        const r=Math.random();
+        if(r<0.7) perk=perks.filter(p=>p.rareza==="bronze")[Math.floor(Math.random()*6)];
+        else if(r<0.9) perk=perks.filter(p=>p.rareza==="rara")[0];
+        else perk=perks.filter(p=>p.rareza==="legendaria")[Math.floor(Math.random()*3)];
+    }
 
     animar(perk);
 
-    if(perk.rareza==="legendaria"){
-        guardarPiedad(0);
-    }else{
-        guardarPiedad(piedad+1);
-    }
+    document.getElementById("imgPerk").src=perk.img;
+    document.getElementById("imgPerk").style.display="block";
+
+    await update(ref(db,"codigos/"+codigo),{usado:true});
+    await set(ref(db,"piedad/"+jugador),{
+        contador: perk.rareza==="legendaria"?0:piedad+1
+    });
+
+    await push(ref(db,"aperturas"),{
+        jugador,
+        perk:perk.nombre,
+        rareza:perk.rareza,
+        codigo,
+        fecha:new Date().toISOString()
+    });
+
+    document.getElementById("piedad").textContent = perk.rareza==="legendaria"?0:piedad+1;
 }
 
 function animar(perk){
     const slots=document.getElementById("slots");
     slots.innerHTML="";
-
     const prev=perks[Math.floor(Math.random()*perks.length)];
     const next=perks[Math.floor(Math.random()*perks.length)];
-
     [prev,perk,next].forEach(p=>{
         const d=document.createElement("div");
         d.className="slot "+p.rareza;
@@ -204,8 +225,6 @@ function animar(perk){
         slots.appendChild(d);
     });
 }
-
-cargarPiedad();
 </script>
 
 </body>
