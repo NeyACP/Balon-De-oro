@@ -19,62 +19,68 @@ body{
 }
 
 .panel{
-    width:300px;
+    width:320px;
     background:#050816;
     border:2px solid #1a237e;
-    border-radius:15px;
+    border-radius:16px;
     padding:20px;
     text-align:center;
     box-shadow:0 0 25px #0d47a1;
 }
 
-h2{ margin:5px 0 10px; }
-
-input{
+input,button{
     width:100%;
-    padding:8px;
+    padding:10px;
     margin-bottom:10px;
-    border-radius:6px;
+    border-radius:8px;
     border:none;
     text-align:center;
 }
 
 button{
-    width:100%;
-    padding:10px;
     background:#0d47a1;
-    border:none;
     color:white;
-    border-radius:8px;
     cursor:pointer;
 }
 button:hover{ background:#1565c0; }
 
 .tragamonedas{
-    margin-top:15px;
     height:150px;
     overflow:hidden;
     border:2px solid #222;
-    border-radius:10px;
+    border-radius:12px;
     background:black;
     position:relative;
 }
 
 .flecha{
     position:absolute;
-    right:-20px;
+    right:-18px;
     top:50%;
     transform:translateY(-50%);
-    font-size:28px;
+    font-size:26px;
     color:gold;
+}
+
+.slots{
+    position:absolute;
+    top:0;
+    width:100%;
+    transition:transform 2.5s cubic-bezier(.1,.9,.2,1);
 }
 
 .slot{
     height:50px;
     display:flex;
     align-items:center;
-    justify-content:center;
-    font-size:15px;
+    gap:8px;
+    padding-left:10px;
+    font-size:13px;
+}
+
+.slot img{
+    width:32px;
+    height:32px;
 }
 
 .bronze{ color:#cd7f32; }
@@ -82,12 +88,6 @@ button:hover{ background:#1565c0; }
 .legendaria{
     color:gold;
     text-shadow:0 0 8px gold;
-}
-
-img{
-    width:120px;
-    margin-top:10px;
-    display:none;
 }
 
 .piedad{
@@ -102,27 +102,26 @@ img{
 <div class="panel">
 <h2>🎰 Cofre de Perks</h2>
 
-<input id="codigo" placeholder="Ingresa tu código">
+<input id="jugador" placeholder="Nombre del jugador">
+<input id="codigo" placeholder="Código del cofre">
 
-<button onclick="canjear()">Canjear Código</button>
+<button onclick="canjear()">Abrir Cofre</button>
 
 <div class="tragamonedas">
-    <div id="slots">
-        <div class="slot">---</div>
-        <div class="slot">---</div>
-        <div class="slot">---</div>
-    </div>
+    <div id="slots" class="slots"></div>
     <div class="flecha">▶</div>
 </div>
-
-<img id="imgPerk">
 
 <div class="piedad">
     Piedad: <span id="piedad">0</span> / 15
 </div>
 </div>
 
-<!-- ============ FIREBASE ============ -->
+<audio id="audioGiro" src="audio/giro.mp3"></audio>
+<audio id="audioNormal" src="audio/normal.mp3"></audio>
+<audio id="audioLegendaria" src="audio/legendaria.mp3"></audio>
+
+<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, get, set, update, push }
@@ -138,22 +137,18 @@ const firebaseConfig = {
   appId: "1:857358899579:web:a56cd2f0f75df09eecc5de"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-window.db=db;
-window.ref=ref;
-window.get=get;
-window.set=set;
-window.update=update;
-window.push=push;
+window.db = getDatabase(initializeApp(firebaseConfig));
+window.ref = ref;
+window.get = get;
+window.set = set;
+window.update = update;
+window.push = push;
 </script>
 
 <script>
-const jugador = "jugador-demo";
 const piedadMax = 15;
 
-const perks=[
+const perks = [
  {nombre:"Perk de Gagamaru", rareza:"bronze", img:"img/gagamaru.png"},
  {nombre:"Perk del León Rojo", rareza:"bronze", img:"img/leonrojo.png"},
  {nombre:"Perk del Monstruo", rareza:"bronze", img:"img/monstruo.png"},
@@ -167,19 +162,13 @@ const perks=[
 ];
 
 async function canjear(){
-    const codigo=document.getElementById("codigo").value.trim();
-    if(!codigo) return alert("Ingresa un código");
+    const jugador = document.getElementById("jugador").value.trim();
+    const codigo = document.getElementById("codigo").value.trim();
+    if(!jugador || !codigo) return alert("Completa los datos");
 
     const snap = await get(ref(db,"codigos/"+codigo));
-    if(!snap.exists() || snap.val().usado){
-        alert("❌ Código inválido o ya usado");
-        return;
-    }
+    if(!snap.exists() || snap.val().usado) return alert("Código inválido");
 
-    abrirCofre(codigo);
-}
-
-async function abrirCofre(codigo){
     let piedad = (await get(ref(db,"piedad/"+jugador))).val()?.contador || 0;
 
     let perk;
@@ -192,10 +181,7 @@ async function abrirCofre(codigo){
         else perk=perks.filter(p=>p.rareza==="legendaria")[Math.floor(Math.random()*3)];
     }
 
-    animar(perk);
-
-    document.getElementById("imgPerk").src=perk.img;
-    document.getElementById("imgPerk").style.display="block";
+    girar(perk);
 
     await update(ref(db,"codigos/"+codigo),{usado:true});
     await set(ref(db,"piedad/"+jugador),{
@@ -210,20 +196,35 @@ async function abrirCofre(codigo){
         fecha:new Date().toISOString()
     });
 
-    document.getElementById("piedad").textContent = perk.rareza==="legendaria"?0:piedad+1;
+    document.getElementById("piedad").textContent =
+        perk.rareza==="legendaria"?0:piedad+1;
 }
 
-function animar(perk){
+function girar(perk){
     const slots=document.getElementById("slots");
     slots.innerHTML="";
-    const prev=perks[Math.floor(Math.random()*perks.length)];
-    const next=perks[Math.floor(Math.random()*perks.length)];
-    [prev,perk,next].forEach(p=>{
+    document.getElementById("audioGiro").play();
+
+    const pool=[];
+    for(let i=0;i<20;i++){
+        pool.push(perks[Math.floor(Math.random()*perks.length)]);
+    }
+    pool.push(perk);
+
+    pool.forEach(p=>{
         const d=document.createElement("div");
         d.className="slot "+p.rareza;
-        d.textContent=p.nombre;
+        d.innerHTML=`<img src="${p.img}"> ${p.nombre}`;
         slots.appendChild(d);
     });
+
+    slots.style.transform=`translateY(-${(pool.length-3)*50}px)`;
+
+    setTimeout(()=>{
+        document.getElementById(
+            perk.rareza==="legendaria" ? "audioLegendaria" : "audioNormal"
+        ).play();
+    },2500);
 }
 </script>
 
